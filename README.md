@@ -1,0 +1,2 @@
+# InsightHoot
+Veille automatique
