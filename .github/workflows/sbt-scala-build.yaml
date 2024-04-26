@@ -63,7 +63,7 @@ jobs:
 
   sbt-publish:
     name: Publish Artifacts
-    needs: [build]
+    needs: [sbt-build]
     if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main')
     strategy:
       matrix:
