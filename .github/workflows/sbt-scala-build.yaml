@@ -31,8 +31,11 @@ jobs:
           cache: sbt
 
 
-      - name: Build project
+      - name: Test project
         run: sbt '++ ${{ matrix.scala }}' test
+
+      - name: Build project
+        run: sbt '++ ${{ matrix.scala }}' build
 
       - name: Compress target directories
         run: |
@@ -49,7 +52,7 @@ jobs:
   sbt-publish:
     name: Publish Artifacts
     needs: [sbt-build]
-    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main')
+    # if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main')
     strategy:
       matrix:
         os: [ubuntu-latest]
