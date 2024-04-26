@@ -81,4 +81,4 @@ jobs:
           rm targets.tar
 
       - name: Publish project
-        run: sbt +publish
+        run: sbt +assembly
