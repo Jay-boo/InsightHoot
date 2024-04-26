@@ -1,5 +1,5 @@
 name: Packaging
-run-name: ${{github.actor}} on ${{github.event_name}} launh packaging
+run-name: ${{github.actor}} on ${{github.event_name}} launch sbt-packaging
 on:
   pull_request:
     branches: ['**']
@@ -30,16 +30,15 @@ jobs:
           java-version: 8
           cache: sbt
 
-      - name: get matrixscala
-        run: echo "${{matrix.scala}}" 
 
       - name: Build project
         run: sbt '++ ${{ matrix.scala }}' test
 
       - name: Compress target directories
-        run: pwd
-        run: cd InsightHoot
-        run: tar cf targets.tar target project/target
+        run: |
+          pwd
+          cd InsightHoot
+          tar cf targets.tar target project/target
 
       - name: Upload target directories
         uses: actions/upload-artifact@v4
