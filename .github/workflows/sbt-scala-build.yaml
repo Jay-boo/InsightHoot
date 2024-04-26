@@ -61,9 +61,12 @@ jobs:
         with:
           config: ./kind/k8s_config/kind-config.yaml
 
-      - name: Kubectl
+      - name: Setup Kafka
         run: |
-          kubectl get pods
+          kubectl apply -f  kind/k8s_config/kafka
+      - name: Spark Operator
+        run: |
+          kubectl apply -f  kind/k8s_config/spark-pi.yaml
 
 
         
