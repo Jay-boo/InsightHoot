@@ -50,11 +50,11 @@ jobs:
   create-cluster:
     runs-on: ubuntu-latest
     steps:
-      - name: Build project jar
-        run: |
-          pwd
-          cd kind
-          sbt '++ ${{ matrix.scala }}' assembly
+      - name: Checkout current branch (full)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Create kind cluster
         uses: helm/kind-action@v1
         with:
