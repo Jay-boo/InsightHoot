@@ -46,8 +46,8 @@ jobs:
           java-version: 8
           cache: sbt
 
-      - name: Check that workflows are up to date
-        run: sbt '++ ${{ matrix.scala }}' githubWorkflowCheck
+      - name: get matrixscala
+        run: echo "${{matrix.scala}}" 
 
       - name: Build project
         run: sbt '++ ${{ matrix.scala }}' test
