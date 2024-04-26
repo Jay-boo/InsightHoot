@@ -61,10 +61,10 @@ jobs:
         with:
           config: ./kind/k8s_config/kind-config.yaml
 
-      - name : Kubectl
-        uses: actions-hub/kubectl@master
-        with:
-          args: apply -f kind/kafka/kafka.yaml
+      - name: Kubectl
+        run: |
+          kubectl get pods
+
 
         
 
