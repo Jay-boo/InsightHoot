@@ -1,5 +1,5 @@
 name: Packaging
-run-name: ${{github.actor}} on ${{github.event_name}} launch sbt-packaging
+run-name: sbt-packaging / ${{github.actor}} on ${{github.event_name}}  
 on:
   pull_request:
     branches: ['**']
@@ -30,19 +30,28 @@ jobs:
           java-version: 8
           cache: sbt
 
-
       - name: Test project
         run: |
           cd InsightHoot
           sbt '++ ${{ matrix.scala }}' test
-      - name: Assembly project
+
+      - name: Build project jar
         run: |
           cd InsightHoot
           sbt '++ ${{ matrix.scala }}' assembly
 
-      - name: Upload target directories
+      - name: Upload Jar Artifact
         uses: actions/upload-artifact@v4
         with:
           name: InsightHootJar
           path: ./jars/InsightHootKafka-3.5.1-8-2.12.jar
+
+
+  create-cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create kind cluster
+        uses: helm/kind-action@v1
+        with:
+          config: kind/k8s_config/kind-config.yaml
 
