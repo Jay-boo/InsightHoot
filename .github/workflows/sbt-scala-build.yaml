@@ -43,6 +43,6 @@ jobs:
       - name: Upload target directories
         uses: actions/upload-artifact@v4
         with:
-          name: target-${{ matrix.os }}-${{ matrix.scala }}-${{ matrix.java }}
-          path: InsightHoot/targets.tar
+          name: InsightHootJar
+          path: ./jars/InsightHootKafka-3.5.1-8-2.12.jar
 
