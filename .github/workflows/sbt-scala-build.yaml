@@ -32,7 +32,13 @@ jobs:
 
 
       - name: Test project
-        run: sbt '++ ${{ matrix.scala }}' test
+        run: |
+          cd InsightHoot
+          sbt '++ ${{ matrix.scala }}' test
+      - name: Assembly project
+        run: |
+          cd InsightHoot
+          sbt '++ ${{ matrix.scala }}' assembly
 
       - name: Compress target directories
         run: |
