@@ -97,10 +97,3 @@ jobs:
 
       - name: Publish project
         run: sbt +publish
-    runs-on: ubuntu-latest
-    steps:
-      - name:  Sbt test
-        uses: lokkju/github-action-sbt@master
-        with:
-          commands: test
-          sbt_project_directory: ./InsightHoot
