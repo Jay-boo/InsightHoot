@@ -50,8 +50,13 @@ jobs:
   create-cluster:
     runs-on: ubuntu-latest
     steps:
+      - name: Build project jar
+        run: |
+          pwd
+          cd kind
+          sbt '++ ${{ matrix.scala }}' assembly
       - name: Create kind cluster
         uses: helm/kind-action@v1
         with:
-          config: kind/k8s_config/kind-config.yaml
+          config: ./kind/k8s_config/kind-config.yaml
 
