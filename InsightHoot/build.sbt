@@ -1,8 +1,5 @@
 name := "InsightHootKafka"
-
 version := "0.1"
-
-
 scalaVersion := "2.12.18"
 
 
@@ -25,3 +22,5 @@ assemblyMergeStrategy in assembly := {
   case _                        => MergeStrategy.first
   case "META-INF/services/org.apache.spark.sql.sources.DataSourceRegister" => MergeStrategy.concat
 }
+
+assemblyOutputPath in assembly := file("../jars/InsightHootKafka-3.5.1-8-2.12.jar")

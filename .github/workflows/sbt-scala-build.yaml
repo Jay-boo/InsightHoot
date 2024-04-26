@@ -8,7 +8,7 @@ on:
 
 
 jobs:
-  sbt-build:
+  sbt-build-jar:
     name: Build and Test
     strategy:
       matrix:
@@ -40,51 +40,9 @@ jobs:
           cd InsightHoot
           sbt '++ ${{ matrix.scala }}' assembly
 
-      - name: Compress target directories
-        run: |
-          pwd
-          cd InsightHoot
-          tar cf targets.tar target project/target
-
       - name: Upload target directories
         uses: actions/upload-artifact@v4
         with:
           name: target-${{ matrix.os }}-${{ matrix.scala }}-${{ matrix.java }}
           path: InsightHoot/targets.tar
 
-  sbt-publish:
-    name: Publish Artifacts
-    needs: [sbt-build]
-    # if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main')
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        scala: [2.12.18]
-        java: [temurin@8]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout current branch (full)
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Java (temurin@8)
-        if: matrix.java == 'temurin@8'
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 8
-          cache: sbt
-
-      - name: Download target directories (2.12.18)
-        uses: actions/download-artifact@v4
-        with:
-          name: target-${{ matrix.os }}-2.12.18-${{ matrix.java }}
-
-      - name: Inflate target directories (2.12.18)
-        run: |
-          tar xf targets.tar
-          rm targets.tar
-
-      - name: Publish project
-        run: sbt +assembly
