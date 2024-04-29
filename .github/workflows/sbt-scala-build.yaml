@@ -82,7 +82,7 @@ jobs:
           sleep 10
       - name: Get logs
         run: |
-          kubectl get logs -n spark-operator spark-pi-driver
+          kubectl logs -n spark-operator spark-pi-driver
       - name: Check Spark application status
         run: |
           kubectl get pods -n spark-operator spark-pi-driver --no-headers -o custom-columns=":status.phase"
