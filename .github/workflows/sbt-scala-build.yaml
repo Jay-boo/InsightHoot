@@ -93,6 +93,9 @@ jobs:
           sleep 30
           kubectl logs -n spark-operator spark-pi-driver
           kubectl get sparkapplications.sparkoperator.k8s.io -n spark-operator spark-pi
+          APP_OUTPUT=$( kubectl get sparkapplications.sparkoperator.k8s.io -n spark-operator spark-pi)
+          STATUS=$(echo "$APP_OUTPUT" | grep "spark-pi" | awk '{print $2}')
+          echo $STATUS
           
 
       - name: Check Spark application status
@@ -100,8 +103,9 @@ jobs:
           sleep 10
           APP_OUTPUT=$( kubectl get sparkapplications.sparkoperator.k8s.io -n spark-operator spark-pi)
           STATUS=$(echo "$APP_OUTPUT" | grep "spark-pi" | awk '{print $2}')
+          echo $STATUS
 
-          if [ "$STATUS" == "Running" ]; then
+          if [ "$STATUS" == "RUNNING" ]; then
             echo "Pod is running"
           else
             echo "Pod is not running"
