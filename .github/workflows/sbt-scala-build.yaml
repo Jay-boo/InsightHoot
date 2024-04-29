@@ -68,7 +68,7 @@ jobs:
           mv spark-sql-kafka-0-10_2.12-3.5.1.jar ./jars
 
       - name : See uploaded artifacts 
-        run: ls ./InsightHoot/jars
+        run: ls ./jars
 
 
       - name: Create kind cluster
