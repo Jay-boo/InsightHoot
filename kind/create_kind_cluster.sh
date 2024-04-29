@@ -2,7 +2,7 @@
 
 echo "------------------------"
 echo "K8s Cluster init ..."
-kind create cluster --name insight-hoot --config ./k8s_config/kind-config.yaml
+kind create cluster --name insight-hoot --config ./kind/k8s_config/kind-config.yaml
 echo "Deploying Zookeeper ..."
 kubectl apply -f k8s_config/kafka/zookeeper.yaml
 echo "Deploying Kafka ..."
