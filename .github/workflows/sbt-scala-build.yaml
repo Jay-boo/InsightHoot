@@ -83,6 +83,8 @@ jobs:
         run: |
           helm repo add spark-operator https://kubeflow.github.io/spark-operator
           helm install my-release spark-operator/spark-operator --namespace spark-operator --create-namespace --set webhook.enable=true
+          sleep 70
+
 
       - name: Spark Operator
         run: |
@@ -90,7 +92,7 @@ jobs:
 
       - name: Get logs kafka-connect
         run: |
-          sleep 70
+          sleep 30
           kubectl logs services/kafka-connect 
           
 
