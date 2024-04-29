@@ -55,6 +55,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: InsightHootJar
+          path: /home/jay/projects/InsightHoot/jars
 
       - name: Create kind cluster
         uses: helm/kind-action@v1
@@ -71,6 +75,19 @@ jobs:
       - name: Spark Operator
         run: |
           kubectl apply -f  kind/k8s_config/spark-pi.yaml
+
+      - name: Check Spark application status
+        run: |
+          sleep 10s
+          kubectl get logs -n spark-operator spark-pi-driver
+          kubectl get pods -n spark-operator spark-pi-driver --no-headers -o custom-columns=":status.phase"
+          if [ "$STATUS" == "Running" ]; then
+            echo "Pod is running"
+          else
+            echo "Pod is not running"
+            exit 1
+          fi
+
 
 
         
