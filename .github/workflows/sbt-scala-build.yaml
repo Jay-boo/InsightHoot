@@ -60,12 +60,12 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: InsightHootJar
-          path: ./InsightHoot/jars
+          path: ./jars
 
       - name: Download Kafka source jar
         run: | 
           wget https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.12/3.5.1/spark-sql-kafka-0-10_2.12-3.5.1.jar
-          mv spark-sql-kafka-0-10_2.12-3.5.1.jar ./InsightHoot/jars
+          mv spark-sql-kafka-0-10_2.12-3.5.1.jar ./jars
 
       - name : See uploaded artifacts 
         run: ls ./InsightHoot/jars
