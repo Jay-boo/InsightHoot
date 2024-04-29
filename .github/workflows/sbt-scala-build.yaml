@@ -93,7 +93,7 @@ jobs:
           sleep 30
           APP_OUTPUT=$( kubectl get sparkapplications.sparkoperator.k8s.io -n spark-operator spark-pi)
           STATUS=$(echo "$APP_OUTPUT" | grep "spark-pi" | awk '{print $2}')
-          echo $STATUS
+          kubectl logs services/kafka-connect 
           
 
       - name: Check Spark application status
