@@ -83,24 +83,25 @@ jobs:
         run: |
           helm repo add spark-operator https://kubeflow.github.io/spark-operator
           helm install my-release spark-operator/spark-operator --namespace spark-operator --create-namespace --set webhook.enable=true
+          sleep 70
+
 
       - name: Spark Operator
         run: |
           kubectl apply -f  kind/k8s_config/spark-pi.yaml
-
-      - name: Get logs spark-pi-driver
-        run: |
           sleep 30
-          kubectl logs -n spark-operator spark-pi-driver
-          kubectl get sparkapplications.sparkoperator.k8s.io -n spark-operator spark-pi
-          APP_OUTPUT=$( kubectl get sparkapplications.sparkoperator.k8s.io -n spark-operator spark-pi)
-          STATUS=$(echo "$APP_OUTPUT" | grep "spark-pi" | awk '{print $2}')
-          echo $STATUS
-          
 
-      - name: Check Spark application status
+      # - name: Get logs kafka-connect
+      #   run: |
+      #     kubectl logs services/kafka-connect 
+      #     
+      #
+      # - name: Get logs spark application driver
+      #   run: |
+      #     kubectl logs -n spark-operator spark-pi-driver
+
+      - name: Check Spark Application status
         run: |
-          sleep 10
           APP_OUTPUT=$( kubectl get sparkapplications.sparkoperator.k8s.io -n spark-operator spark-pi)
           STATUS=$(echo "$APP_OUTPUT" | grep "spark-pi" | awk '{print $2}')
           echo $STATUS

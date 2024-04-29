@@ -12,13 +12,13 @@ object Main {
 
     // Define Kafka parameters
     val kafkaParams = Map[String, String](
-      "kafka.bootstrap.servers" -> "kafka-service:9092", // Kafka broker
-      "subscribe" -> "topic_from_producer" // Kafka topic to subscribe to
+      "kafka.bootstrap.servers" -> "kafka-service.default.svc.cluster.local:9092", // Kafka broker
+      "subscribe" -> "databricktopic" // Kafka topic to subscribe to
       //"auto.offset.reset" -> "latest" // Read from the latest offset
     )
 
     // Define Kafka topic to subscribe to
-    val kafkaTopic = "topic_from_producer"
+    val kafkaTopic = "databricktopic"
 
     // Read data from Kafka as a DataFrame
     val kafkaStreamDF = spark
