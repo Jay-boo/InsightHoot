@@ -72,6 +72,7 @@ jobs:
         run: |
           helm repo add spark-operator https://kubeflow.github.io/spark-operator
           helm install my-release spark-operator/spark-operator --namespace spark-operator --create-namespace --set webhook.enable=true
+
       - name: Spark Operator
         run: |
           kubectl apply -f  kind/k8s_config/spark-pi.yaml
@@ -80,6 +81,8 @@ jobs:
         run: |
           sleep 10s
           kubectl get logs -n spark-operator spark-pi-driver
+      - name: Check Spark application status
+        run: |
           kubectl get pods -n spark-operator spark-pi-driver --no-headers -o custom-columns=":status.phase"
           if [ "$STATUS" == "Running" ]; then
             echo "Pod is running"
