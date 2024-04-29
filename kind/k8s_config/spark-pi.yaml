@@ -9,7 +9,7 @@ spec:
   image: "spark:3.5.1"
   imagePullPolicy: Always
   mainClass: Main
-  mainApplicationFile: "local:///tmp/jars/TestKafka-assembly-0.1.jar"
+  mainApplicationFile: "local:///tmp/jars/InsightHootKafka-3.5.1-8-2.12.jar"
   sparkVersion: "3.5.1"
   restartPolicy:
     type: Never
@@ -18,9 +18,9 @@ spec:
       hostPath:
         path: "/foo/jars/"
         type: "Directory"
-  deps:
-    jars:
-      - local:///tmp/jars/spark-sql-kafka-0-10_2.12-3.5.1.jar
+  # deps:
+  #   jars:
+  #     - local:///tmp/jars/spark-sql-kafka-0-10_2.12-3.5.1.jar
   driver:
     cores: 1
     coreLimit: "1200m"

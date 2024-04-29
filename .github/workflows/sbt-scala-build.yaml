@@ -60,6 +60,10 @@ jobs:
           name: InsightHootJar
           path: ./InsightHoot/jars
 
+      - name : See uploaded artifacts 
+        run: ls ./InsightHoot/jars
+
+
       - name: Create kind cluster
         uses: helm/kind-action@v1
         with:
