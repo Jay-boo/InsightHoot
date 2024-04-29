@@ -83,7 +83,7 @@ jobs:
           kubectl logs -n spark-operator spark-pi-driver
       - name: Check Spark application status
         run: |
-          kubectl get pods -n spark-operator spark-pi-driver --no-headers -o custom-columns=":status.phase"
+          STATUS=$(kubectl get pods -n spark-operator spark-pi-driver --no-headers -o custom-columns=":status.phase")
           if [ "$STATUS" == "Running" ]; then
             echo "Pod is running"
           else
