@@ -12,7 +12,7 @@ object Main {
 
     // Define Kafka parameters
     val kafkaParams = Map[String, String](
-      "kafka.bootstrap.servers" -> "kafka-service:9092", // Kafka broker
+      "kafka.bootstrap.servers" -> "kafka-service.default.svc.cluster.local:9092", // Kafka broker
       "subscribe" -> "topic_from_producer" // Kafka topic to subscribe to
       //"auto.offset.reset" -> "latest" // Read from the latest offset
     )
