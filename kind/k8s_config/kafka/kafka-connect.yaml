@@ -1,4 +1,35 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rss-topics-config
+data:
+  rss_topics.json: |
+    {
+      "stackoverflow": "https://stackoverflow.blog/feed",
+      "developpez": "https://cloud-computing.developpez.com/rss.php",
+      "4sysops": "https://4sysops.com/feed/",
+      "adamtheautomator": "https://adamtheautomator.com/feed/",
+      "macmule": "https://macmule.com/feed/",
+      "web3isgoinggreat": "https://www.web3isgoinggreat.com/feed",
+      "thezvi": "https://thezvi.substack.com/feed",
+      "zdnet": [
+        "https://www.zdnet.com/topic/artificial-intelligence/rss.xml",
+        "https://www.zdnet.com/topic/cloud/rss.xml",
+        "https://www.zdnet.com/topic/digital-transformation/rss.xml"
+      ],
+      "databricks": "https://www.databricks.com/feed",
+      "techtoday": "https://techtoday.co/category/tech-news/feed/",
+      "reddittech": "https://www.reddit.com/r/technology/top.rss?t=day",
+      "slashdot": "http://rss.slashdot.org/Slashdot/slashdotMain",
+      "theverge": "https://www.theverge.com/rss/tech/index.xml",
+      "techcrunch": "https://techcrunch.com/feed/",
+      "theguardian": "https://www.theguardian.com/us/technology/rss",
+      "arstechnica": "https://feeds.arstechnica.com/arstechnica/technology-lab",
+      "wsj": "https://feeds.a.dj.com/rss/RSSWSJD.xml",
+      "ft": "https://www.ft.com/technology?format=rss"
+    }
+---
+apiVersion: v1
 kind: Service
 metadata:
   annotations:
@@ -39,6 +70,17 @@ spec:
         io.kompose.network/komposedir-default: "true"
         io.kompose.service: kafka-connect
     spec:
+      initContainers:
+        - name: fetch-rss-topics
+          image: registry.k8s.io/busybox
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+          command: ["/bin/sh", "-c", "cat /etc/config/rss_topics.json"]
+      volumes:
+        - name: config-volume
+          configMap:
+            name: rss-topics-config
       containers:
         - args:
             - bash
@@ -57,29 +99,23 @@ spec:
               done
               nc -vz $$CONNECT_REST_ADVERTISED_HOST_NAME $$CONNECT_REST_PORT
               #
-              echo -e "\n--\n+> Creating HackerNews RSS Source"
-              curl -i -X POST -H "Accept:application/json" \
-                  -H  "Content-Type:application/json" http://localhost:8083/connectors/ \
-                  -d '{
-                "name": "source-rss-hackernews-src",
-                "config": {
-                  "connector.class": "org.kaliy.kafka.connect.rss.RssSourceConnector",
-                  "topic": "hackernewstopic",
-                  "rss.urls":"https://hnrss.org/newest"
-                }
-              }'
-              #
-              echo -e "\n--\n+> Creating DataBrick RSS Source"
-              curl -i -X POST -H "Accept:application/json" \
-                  -H  "Content-Type:application/json" http://localhost:8083/connectors/ \
-                  -d '{
-                "name": "source-rss-databrick-src",
-                "config": {
-                  "connector.class": "org.kaliy.kafka.connect.rss.RssSourceConnector",
-                  "topic": "databricktopic",
-                  "rss.urls":"https://databricks.com/feed"
-                }
-              }'
+              echo -e "\n--\n+> Creating RSS Sources"
+              cat /etc/config/rss_topics.json | while IFS= read -r line; do
+                  key=$(echo "$line" | awk -F '"' '{print $2}')
+                  value=$(echo "$line" | awk -F '"' '{print $4}')
+                  echo "$$key"
+                  echo "$$value"
+                  curl -i -X POST -H "Accept:application/json" \
+                      -H "Content-Type:application/json" http://localhost:8083/connectors/ \
+                      -d '{
+                    "name": "source-rss-'"$$key"'-src",
+                    "config": {
+                      "connector.class": "org.kaliy.kafka.connect.rss.RssSourceConnector", 
+                      "topic": "'"$$key"'", 
+                      "rss.urls": "'"$$value"'"
+                    }
+                  }'
+              done
               #
               sleep infinity
           env:
@@ -123,10 +159,13 @@ spec:
               value: docker-connect-status
             - name: CONNECT_VALUE_CONVERTER
               value: org.apache.kafka.connect.json.JsonConverter
-          image: confluentinc/cp-kafka-connect:5.2.1
+          image: confluentinc/cp-kafka-connect:5.2.1 
           name: kafka-connect
           ports:
             - containerPort: 8083
               hostPort: 8083
               protocol: TCP
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
       restartPolicy: Always
