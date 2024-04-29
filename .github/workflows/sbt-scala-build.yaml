@@ -79,11 +79,9 @@ jobs:
 
       - name: Sleep
         run: |
-          sleep 10s
-          kubectl get logs -n spark-operator spark-pi-driver
+          sleep 10
       - name: Get logs
         run: |
-          sleep 10s
           kubectl get logs -n spark-operator spark-pi-driver
       - name: Check Spark application status
         run: |
