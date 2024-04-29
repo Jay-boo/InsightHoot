@@ -89,16 +89,16 @@ jobs:
       - name: Spark Operator
         run: |
           kubectl apply -f  kind/k8s_config/spark-pi.yaml
-
-      - name: Get logs kafka-connect
-        run: |
           sleep 30
-          kubectl logs services/kafka-connect 
-          
 
-      - name: Get logs spark application driver
-        run: |
-          kubectl logs -n spark-operator spark-pi-driver
+      # - name: Get logs kafka-connect
+      #   run: |
+      #     kubectl logs services/kafka-connect 
+      #     
+      #
+      # - name: Get logs spark application driver
+      #   run: |
+      #     kubectl logs -n spark-operator spark-pi-driver
 
       - name: Check Spark Application status
         run: |
