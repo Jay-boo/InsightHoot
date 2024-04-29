@@ -18,7 +18,7 @@ object Main {
     )
 
     // Define Kafka topic to subscribe to
-    val kafkaTopic = "topic_from_producer"
+    val kafkaTopic = "databricktopic"
 
     // Read data from Kafka as a DataFrame
     val kafkaStreamDF = spark

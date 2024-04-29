@@ -91,8 +91,6 @@ jobs:
       - name: Get logs spark-pi-driver
         run: |
           sleep 30
-          kubectl logs -n spark-operator spark-pi-driver
-          kubectl get sparkapplications.sparkoperator.k8s.io -n spark-operator spark-pi
           APP_OUTPUT=$( kubectl get sparkapplications.sparkoperator.k8s.io -n spark-operator spark-pi)
           STATUS=$(echo "$APP_OUTPUT" | grep "spark-pi" | awk '{print $2}')
           echo $STATUS
@@ -101,6 +99,7 @@ jobs:
       - name: Check Spark application status
         run: |
           sleep 10
+          kubectl logs -n spark-operator spark-pi-driver
           APP_OUTPUT=$( kubectl get sparkapplications.sparkoperator.k8s.io -n spark-operator spark-pi)
           STATUS=$(echo "$APP_OUTPUT" | grep "spark-pi" | awk '{print $2}')
           echo $STATUS
