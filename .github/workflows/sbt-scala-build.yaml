@@ -109,7 +109,8 @@ jobs:
 
             if [ "$STATUS" == "FAILED" ]; then
               echo "Spark Application Failed"
-            elif [ "$STATUS" == "COMPLETED"]; then
+              exit 1
+            elif [ "$STATUS" == "COMPLETED" ]; then
               echo "Spark Application Completed"
               exit 0
             else
