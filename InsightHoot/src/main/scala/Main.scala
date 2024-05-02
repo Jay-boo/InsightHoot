@@ -13,7 +13,7 @@ object Main {
     val mode: Boolean = args(0) == "k8s"
     val kafkaParams = Map[String, String](
       "kafka.bootstrap.servers" ->( if (mode) "kafka-service.default.svc.cluster.local:9092" else  "localhost:9092"),
-      "subscribe" -> "databricks",
+      "subscribePattern" -> "topic-*",
       "startingOffsets"-> "earliest",
       "endingOffsets"-> "latest"
     )

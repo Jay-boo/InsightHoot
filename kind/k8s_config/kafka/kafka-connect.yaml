@@ -111,7 +111,7 @@ spec:
                     "name": "source-rss-'"$$key"'-src",
                     "config": {
                       "connector.class": "org.kaliy.kafka.connect.rss.RssSourceConnector", 
-                      "topic": "'"$$key"'", 
+                      "topic": "topic-'"$$key"'", 
                       "rss.urls": "'"$$value"'"
                     }
                   }'
