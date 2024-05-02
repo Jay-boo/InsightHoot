@@ -102,13 +102,19 @@ jobs:
 
       - name: Check Spark Application status
         run: |
-          APP_OUTPUT=$( kubectl get sparkapplications.sparkoperator.k8s.io -n spark-operator spark-pi)
-          STATUS=$(echo "$APP_OUTPUT" | grep "spark-pi" | awk '{print $2}')
-          echo $STATUS
+          while true; do
+            APP_OUTPUT=$( kubectl get sparkapplications.sparkoperator.k8s.io -n spark-operator spark-pi)
+            STATUS=$(echo "$APP_OUTPUT" | grep "spark-pi" | awk '{print $2}')
+            echo $STATUS
 
-          if [ "$STATUS" == "RUNNING" ]; then
-            echo "Pod is running"
-          else
-            echo "Pod is not running"
-            exit 1
-          fi
+            if [ "$STATUS" == "FAILED" ]; then
+              echo "Spark Application Failed"
+              exit 1
+            elif [ "$STATUS" == "COMPLETED" ]; then
+              echo "Spark Application Completed"
+              exit 0
+            else
+              echo "Spark Application still running, Waiting ..."
+              sleep 10
+            fi
+          done
