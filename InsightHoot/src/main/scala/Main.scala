@@ -1,5 +1,5 @@
-import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.{Encoders};
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions.{col, get_json_object}
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -10,10 +10,10 @@ object Main {
     }
     val mode: Boolean = args(0) == "k8s"
     val kafkaParams = Map[String, String](
-      "kafka.bootstrap.servers" ->( if (mode) "kafka-service.default.svc.cluster.local:9092" else  "localhost:9092"),
-      "subscribe" -> "databricks",
-      "startingOffsets"-> "earliest",
-      "endingOffsets"-> "latest"
+      "kafka.bootstrap.servers" -> (if (mode) "kafka-service.default.svc.cluster.local:9092" else "localhost:9092"),
+      "subscribe" -> "4sysops, developpez, reddittech, slashdot, theguardian, wsj", // Update with your topics
+      "startingOffsets" -> "earliest",
+      "endingOffsets" -> "latest"
     )
     println(s"Mode : $mode")
     println(kafkaParams)
@@ -21,10 +21,10 @@ object Main {
     val spark = SparkSession
       .builder()
       .appName("KafkaToSparkStreaming")
-      .config("spark.master","local")
+      .config("spark.master", "local")
       .getOrCreate()
 
-    val df=spark
+    val df = spark
       .read
       .format("kafka")
       .options(kafkaParams)
@@ -32,26 +32,15 @@ object Main {
 
     println("Getting DF from kafka")
     df.printSchema()
-    df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)").show(4,truncate=false)
+    val dfWithPayload = df.selectExpr("topic", "CAST(key AS STRING)", "CAST(value AS STRING)")
+      .withColumn("topic_name", col("topic"))
+      .withColumn("payload", get_json_object(col("value"), "$.payload"))
+      .drop("value")
 
-//    val kafkaStreamDF = spark
-//      .readStream
-//      .format("kafka")
-//      .options(kafkaParams)
-//      .load()
-//
-//    val valueSchema = "value STRING"
-//    val parsedDF = kafkaStreamDF
-//      .selectExpr("CAST(value AS STRING)")
-//      .selectExpr(valueSchema)
-//      .as(Encoders.STRING)
-//
-//
-//    val query = parsedDF
-//      .writeStream
-//      .outputMode("append")
-//      .format("console")
-//      .start()
-//    query.awaitTermination()
+    dfWithPayload
+      .write
+      .partitionBy("topic_name")
+      .mode("overwrite")
+      .parquet("output/raw_data") // Update with your desired output path
   }
 }
