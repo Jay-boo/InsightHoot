@@ -21,12 +21,13 @@ data:
       "techtoday": "https://techtoday.co/category/tech-news/feed/",
       "reddittech": "https://www.reddit.com/r/technology/top.rss?t=day",
       "slashdot": "http://rss.slashdot.org/Slashdot/slashdotMain",
-      "theverge": "https://www.theverge.com/rss/tech/index.xml",
+      "theverge": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
       "techcrunch": "https://techcrunch.com/feed/",
       "theguardian": "https://www.theguardian.com/us/technology/rss",
       "arstechnica": "https://feeds.arstechnica.com/arstechnica/technology-lab",
       "wsj": "https://feeds.a.dj.com/rss/RSSWSJD.xml",
-      "ft": "https://www.ft.com/technology?format=rss"
+      "ft": "https://www.ft.com/technology?format=rss",
+      "dbta": "https://feeds.feedburner.com/DBTA-Articles"
     }
 ---
 apiVersion: v1
