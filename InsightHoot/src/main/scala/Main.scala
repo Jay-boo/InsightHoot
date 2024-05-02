@@ -1,4 +1,6 @@
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.functions._;
+import org.apache.spark.sql.types._;
 import org.apache.spark.sql.{Encoders};
 
 object Main {
@@ -23,6 +25,7 @@ object Main {
       .appName("KafkaToSparkStreaming")
       .config("spark.master","local")
       .getOrCreate()
+    import spark.implicits._
 
     val df=spark
       .read
@@ -30,28 +33,41 @@ object Main {
       .options(kafkaParams)
       .load()
 
-    println("Getting DF from kafka")
-    df.printSchema()
-    df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)").show(4,truncate=false)
+    df.selectExpr("CAST(value AS STRING)").show(truncate=false)
+    val schema = new StructType()
+      .add("payload", StringType)
 
-//    val kafkaStreamDF = spark
-//      .readStream
-//      .format("kafka")
-//      .options(kafkaParams)
-//      .load()
-//
-//    val valueSchema = "value STRING"
-//    val parsedDF = kafkaStreamDF
-//      .selectExpr("CAST(value AS STRING)")
-//      .selectExpr(valueSchema)
-//      .as(Encoders.STRING)
-//
-//
-//    val query = parsedDF
-//      .writeStream
-//      .outputMode("append")
-//      .format("console")
-//      .start()
-//    query.awaitTermination()
+    val payloadDF = df
+      .selectExpr("CAST(value AS STRING)")
+      .select(from_json(col("value"), schema).as("data"))
+      .select("data.payload").as("payload")
+
+
+    val payloadSchema = StructType(Seq(
+      StructField("feed", StructType(Seq(
+        StructField("title", StringType, nullable = true),
+        StructField("url", StringType, nullable = true)
+      )), nullable = true),
+      StructField("title", StringType, nullable = true),
+      StructField("id", StringType, nullable = true),
+      StructField("link", StringType, nullable = true),
+      StructField("content", StringType, nullable = true),
+      StructField("author", StringType, nullable = true),
+      StructField("date", TimestampType, nullable = true)
+    ))
+
+    val parsedDF = payloadDF.withColumn("parsed_payload", from_json(col("payload"), payloadSchema))
+    val payloadParsedDF=parsedDF.select(
+      $"parsed_payload.feed.title".alias("feed_title"),
+      $"parsed_payload.feed.url".alias("feed_url"),
+      $"parsed_payload.title".alias("title"),
+      $"parsed_payload.id".alias("id"),
+      $"parsed_payload.link".alias("link"),
+      $"parsed_payload.content".alias("content"),
+      $"parsed_payload.author".alias("author"),
+      $"parsed_payload.date".alias("date")
+    )
+    payloadParsedDF.show()
+    payloadParsedDF.printSchema()
   }
 }
