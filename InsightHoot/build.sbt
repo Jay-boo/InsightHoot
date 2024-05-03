@@ -10,10 +10,12 @@ libraryDependencies += "org.apache.spark" %% "spark-core" % "3.5.1"
 // https://mvnrepository.com/artifact/org.apache.spark/spark-sql
 libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.5.1"
 libraryDependencies += "org.apache.spark" %% "spark-sql-kafka-0-10" % "3.5.1"
-
-
 // https://mvnrepository.com/artifact/org.apache.spark/spark-streaming-kafka-0-10
 libraryDependencies += "org.apache.spark" %% "spark-streaming-kafka-0-10" % "3.5.1"
+libraryDependencies += "com.johnsnowlabs.nlp" %% "spark-nlp" % "5.3.3"
+libraryDependencies += "org.apache.spark" %% "spark-mllib" % "3.5.1"
+libraryDependencies += "org.apache.logging.log4j" % "log4j-api" % "2.23.1"
+libraryDependencies += "org.apache.logging.log4j" % "log4j-core" % "2.23.1"
 
 libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
 
