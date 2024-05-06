@@ -16,6 +16,9 @@ libraryDependencies += "com.johnsnowlabs.nlp" %% "spark-nlp" % "5.3.3"
 libraryDependencies += "org.apache.spark" %% "spark-mllib" % "3.5.1"
 libraryDependencies += "org.apache.logging.log4j" % "log4j-api" % "2.23.1"
 libraryDependencies += "org.apache.logging.log4j" % "log4j-core" % "2.23.1"
+libraryDependencies += "com.lihaoyi" %% "upickle" % "3.3.0"
+libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.9.1"
+libraryDependencies += "com.github.vickumar1981" %% "stringdistance" % "1.2.7"
 
 libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
 

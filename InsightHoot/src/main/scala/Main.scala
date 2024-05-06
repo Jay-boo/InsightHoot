@@ -49,7 +49,7 @@ object Main extends SparkMachine {
 
   }
 
-  def getReleventTokens(model: PipelineModel,titleDF:DataFrame): DataFrame = {
+  def getRelevantTokens(model: PipelineModel,titleDF:DataFrame): DataFrame = {
     val res=model.transform(titleDF)
     val explodedDF=res.withColumn("explodedPosTagging",explode($"posTagging")).drop("token","document","posTagging")
     val pertinentDF=explodedDF.withColumn("token",$"explodedPosTagging.metadata")
@@ -76,7 +76,6 @@ object Main extends SparkMachine {
     println(s"Mode : $mode")
     println(kafkaParams)
 
-
     val df=spark
       .read
       .format("kafka")
@@ -95,8 +94,10 @@ object Main extends SparkMachine {
     val pipeline_POS= new Pipeline()
       .setStages(Array(documentAssembler,tokenizer,posTagger))
     val model=pipeline_POS.fit(titleDF)
-    val relevantTokens: DataFrame = getReleventTokens(model, titleDF)
+    val relevantTokens: DataFrame = getRelevantTokens(model, titleDF)
     relevantTokens.show(5)
+    val taggedDF:DataFrame=Tagger.tagDF(relevantTokens,spark)
+    taggedDF.show(5,truncate=false)
 //    explodedDF.withColumn("token",$"explodedPosTagging.metadata")
 //      .withColumn("tag",$"explodedPosTagging.result").select("title","token","tag").groupBy("title")
 //      .agg(collect_list("token").as("tokens"),collect_list("tag").as("tags")).select("title","tags").show(truncate=false)
