@@ -4,12 +4,14 @@ import org.apache.spark.sql.types._
 import com.johnsnowlabs.nlp.annotators.Tokenizer
 import com.johnsnowlabs.nlp.annotators.pos.perceptron.PerceptronModel
 import com.johnsnowlabs.nlp.base.DocumentAssembler
-import org.apache.spark.ml.Pipeline;
+import org.apache.spark.ml.{Pipeline, PipelineModel};
+
+
 
 object Main extends SparkMachine {
   import spark.implicits._
 
-  def getRelevantTokens(df:DataFrame): DataFrame = {
+  def getPayload(df:DataFrame): DataFrame = {
     val schema = new StructType()
       .add("payload", StringType)
 
@@ -47,6 +49,15 @@ object Main extends SparkMachine {
 
   }
 
+  def getReleventTokens(model: PipelineModel,titleDF:DataFrame): DataFrame = {
+    val res=model.transform(titleDF)
+    val explodedDF=res.withColumn("explodedPosTagging",explode($"posTagging")).drop("token","document","posTagging")
+    val pertinentDF=explodedDF.withColumn("token",$"explodedPosTagging.metadata")
+      .filter($"explodedPosTagging.result".startsWith("NN"))
+      .withColumn("token",expr("token['word']"))
+    pertinentDF.groupBy("title").agg(collect_list("token").as("relevant_tokens"))
+  }
+
 
 
   def main(args: Array[String]): Unit = {
@@ -71,7 +82,7 @@ object Main extends SparkMachine {
       .format("kafka")
       .options(kafkaParams)
       .load()
-    val titleDF=getRelevantTokens(df).select("title")
+    val titleDF=getPayload(df).select("title")
 
     val documentAssembler= new DocumentAssembler()
       .setInputCol("title")
@@ -83,22 +94,13 @@ object Main extends SparkMachine {
 
     val pipeline_POS= new Pipeline()
       .setStages(Array(documentAssembler,tokenizer,posTagger))
-
     val model=pipeline_POS.fit(titleDF)
-    val res=model.transform(titleDF)
-    val explodedDF=res.withColumn("explodedPosTagging",explode($"posTagging")).drop("token","document","posTagging")
-    println("Tagging ...")
+    val relevantTokens: DataFrame = getReleventTokens(model, titleDF)
+    relevantTokens.show(5)
 //    explodedDF.withColumn("token",$"explodedPosTagging.metadata")
 //      .withColumn("tag",$"explodedPosTagging.result").select("title","token","tag").groupBy("title")
 //      .agg(collect_list("token").as("tokens"),collect_list("tag").as("tags")).select("title","tags").show(truncate=false)
 
-
-
-    val pertinentDF=explodedDF.withColumn("token",$"explodedPosTagging.metadata")
-      .filter($"explodedPosTagging.result".startsWith("NN"))
-      .withColumn("token",expr("token['word']"))
-    println("Relevant tokens  :")
-    pertinentDF.groupBy("title").agg(collect_list("token").as("relevant_tokens")).show(truncate=false)
   }
 
 }
