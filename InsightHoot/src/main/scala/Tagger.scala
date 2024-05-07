@@ -1,17 +1,35 @@
 import com.github.vickumar1981.stringdistance.StringDistance.Levenshtein
-import org.apache.spark.mllib.linalg._
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import scala.collection.mutable.LinkedHashMap
+import scala.collection.Map
+
 
 object Tagger {
+  case class DocumentTag(tag:String,theme:String)
+
   val jsonTags=ujson.read(os.read(os.pwd/"src"/"main"/"resources"/"tags.json"))
-  val tags: Seq[String] =jsonTags("tags").arr.map(_.str.toLowerCase)
+  var tags:Seq[DocumentTag]=Seq.empty[DocumentTag]
+  jsonTags.obj.foreach({
+    case (theme:String,tagsList)=>
+      tagsList.arr.foreach(
+        tag=> tags:+= DocumentTag(tag.str,theme)
+      )
+  })
+//  println("Tags:",tags,tags.length)
 
 
+  //  val mapTags= jsonTags.obj.mapValues({
+  //    case ujson.Arr(arr) => arr.map(_.str.toLowerCase)
+  //    case _ => Seq.empty[String]
+  //  })
+  //  val mapTags:LinkedHashMap[String,Seq[String]] =jsonTags.arr
+//  val tags:Map[String,Seq[String]]=jsonTags.obj.mapValues(value=>value.arr.map(_.str).toSeq)
+//  val tags: Seq[String]=Seq("hello")
 
-  def getTokenTag(token:String,min_score:Double=0.5): Option[String]={
-    val scores=tags.map(Levenshtein.score(token.toLowerCase(),_))
+
+  def getTokenTag(token:String,min_score:Double=0.5): Option[DocumentTag]={
+    val scores=tags.map(tag=>{Levenshtein.score(token.toLowerCase(),tag.tag.toLowerCase())})
     val maxIndex=scores.indexOf(scores.max)
-    println(token,tags,scores)
     if (scores.max >= min_score){
       Some(tags(maxIndex))
     }else{
@@ -19,9 +37,9 @@ object Tagger {
     }
   }
 
-  def getDocumentTags(tokens:Seq[String],min_score:Double=0.8):Seq[String]={
-    val documentTokens:Seq[Option[String]]=tokens.map(getTokenTag(_,min_score=min_score))
-    val result:Seq[String]=documentTokens.flatMap(_.toList)
+  def getDocumentTags(tokens:Seq[String],min_score:Double=0.8):Seq[DocumentTag]={
+    val documentTokens:Seq[Option[DocumentTag]]=tokens.map(getTokenTag(_,min_score=min_score))
+    val result:Seq[DocumentTag]=documentTokens.flatMap(_.toList)
     result.distinct
   }
 
@@ -32,7 +50,6 @@ object Tagger {
       (title, relevant_tokens, tags)
     }.toDF("title", "relevant_tokens", "tags")
     dfWithTags
-
   }
 
 
