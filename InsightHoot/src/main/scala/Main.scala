@@ -1,9 +1,10 @@
-import org.apache.spark.sql.{DataFrame }
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import com.johnsnowlabs.nlp.annotators.Tokenizer
 import com.johnsnowlabs.nlp.annotators.pos.perceptron.PerceptronModel
 import com.johnsnowlabs.nlp.base.DocumentAssembler
+import org.apache.logging.log4j.scala.Logging
 import org.apache.spark.ml.{Pipeline, PipelineModel};
 
 
