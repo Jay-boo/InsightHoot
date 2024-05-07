@@ -91,7 +91,7 @@ object Main extends SparkMachine with Logging {
       .setInputCols("document").setOutputCol("token")
 
     val posTagger:PerceptronModel=try{
-      PerceptronModel.load("./../jars/pos_anc_en").setInputCols(Array("document", "token")).setOutputCol("posTagging")
+      PerceptronModel.load("/tmp/jars/pos_anc_en").setInputCols(Array("document", "token")).setOutputCol("posTagging")// Path model 4 k8s
     }catch{
       case exception: Exception=>{
        println("Failed to load model localy, Downloading it using ResourceDownloader")

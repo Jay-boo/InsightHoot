@@ -1,13 +1,14 @@
 import com.github.vickumar1981.stringdistance.StringDistance.Levenshtein
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
-import scala.collection.mutable.LinkedHashMap
-import scala.collection.Map
+import scala.io.Source
 
 
 object Tagger {
   case class DocumentTag(tag:String,theme:String)
 
-  val jsonTags=ujson.read(os.read(os.pwd/"src"/"main"/"resources"/"tags.json"))
+  val inputStream=getClass.getResourceAsStream("/tags.json")
+  val jsonString=Source.fromInputStream(inputStream).mkString
+  val jsonTags=ujson.read(jsonString)
   var tags:Seq[DocumentTag]=Seq.empty[DocumentTag]
   jsonTags.obj.foreach({
     case (theme:String,tagsList)=>
