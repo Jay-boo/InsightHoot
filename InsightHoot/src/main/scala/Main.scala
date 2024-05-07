@@ -98,9 +98,6 @@ object Main extends SparkMachine {
     relevantTokens.show(5)
     val taggedDF:DataFrame=Tagger.tagDF(relevantTokens,spark)
     taggedDF.show(5,truncate=false)
-//    explodedDF.withColumn("token",$"explodedPosTagging.metadata")
-//      .withColumn("tag",$"explodedPosTagging.result").select("title","token","tag").groupBy("title")
-//      .agg(collect_list("token").as("tokens"),collect_list("tag").as("tags")).select("title","tags").show(truncate=false)
 
   }
 
