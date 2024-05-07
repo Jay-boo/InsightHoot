@@ -1,6 +1,7 @@
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{DataFrame }
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
+import org.apache.logging.log4j.scala.Logging
 import com.johnsnowlabs.nlp.annotators.Tokenizer
 import com.johnsnowlabs.nlp.annotators.pos.perceptron.PerceptronModel
 import com.johnsnowlabs.nlp.base.DocumentAssembler
@@ -8,7 +9,7 @@ import org.apache.spark.ml.{Pipeline, PipelineModel};
 
 
 
-object Main extends SparkMachine {
+object Main extends SparkMachine with Logging {
   import spark.implicits._
 
   def getPayload(df:DataFrame): DataFrame = {
@@ -62,8 +63,8 @@ object Main extends SparkMachine {
 
   def main(args: Array[String]): Unit = {
     if (args.length != 1 || (args(0) != "local" && args(0) != "k8s")) {
-      println("Usage: Main <mode>")
-      println("Modes: local | k8s")
+      logger.error("Usage: Main <mode>")
+      logger.info("Modes: local | k8s")
       System.exit(1)
     }
     val mode: Boolean = args(0) == "k8s"
@@ -89,7 +90,14 @@ object Main extends SparkMachine {
     val  tokenizer=new Tokenizer()
       .setInputCols("document").setOutputCol("token")
 
-    val posTagger= PerceptronModel.pretrained().setInputCols(Array("document","token")).setOutputCol("posTagging")
+    val posTagger:PerceptronModel=try{
+      PerceptronModel.load("./../jars/pos_anc_en").setInputCols(Array("document", "token")).setOutputCol("posTagging")
+    }catch{
+      case exception: Exception=>{
+       println("Failed to load model localy, Downloading it using ResourceDownloader")
+        PerceptronModel.pretrained().setInputCols(Array("document", "token")).setOutputCol("posTagging")
+      }
+    }
 
     val pipeline_POS= new Pipeline()
       .setStages(Array(documentAssembler,tokenizer,posTagger))
@@ -98,10 +106,6 @@ object Main extends SparkMachine {
     relevantTokens.show(5)
     val taggedDF:DataFrame=Tagger.tagDF(relevantTokens,spark)
     taggedDF.show(5,truncate=false)
-//    explodedDF.withColumn("token",$"explodedPosTagging.metadata")
-//      .withColumn("tag",$"explodedPosTagging.result").select("title","token","tag").groupBy("title")
-//      .agg(collect_list("token").as("tokens"),collect_list("tag").as("tags")).select("title","tags").show(truncate=false)
-
   }
 
 }
