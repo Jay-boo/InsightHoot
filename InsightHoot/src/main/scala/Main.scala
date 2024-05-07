@@ -1,39 +1,18 @@
-import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.functions._;
-import org.apache.spark.sql.types._;
-import org.apache.spark.sql.{Encoders};
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types._
+import com.johnsnowlabs.nlp.annotators.Tokenizer
+import com.johnsnowlabs.nlp.annotators.pos.perceptron.PerceptronModel
+import com.johnsnowlabs.nlp.base.DocumentAssembler
+import org.apache.logging.log4j.scala.Logging
+import org.apache.spark.ml.{Pipeline, PipelineModel};
 
-object Main {
-  def main(args: Array[String]): Unit = {
-    if (args.length != 1 || (args(0) != "local" && args(0) != "k8s")) {
-      println("Usage: Main <mode>")
-      println("Modes: local | k8s")
-      System.exit(1)
-    }
-    val mode: Boolean = args(0) == "k8s"
-    val kafkaParams = Map[String, String](
-      "kafka.bootstrap.servers" ->( if (mode) "kafka-service.default.svc.cluster.local:9092" else  "localhost:9092"),
-      "subscribePattern" -> "topic-*",
-      "startingOffsets"-> "earliest",
-      "endingOffsets"-> "latest"
-    )
-    println(s"Mode : $mode")
-    println(kafkaParams)
 
-    val spark = SparkSession
-      .builder()
-      .appName("KafkaToSparkStreaming")
-      .config("spark.master","local")
-      .getOrCreate()
-    import spark.implicits._
 
-    val df=spark
-      .read
-      .format("kafka")
-      .options(kafkaParams)
-      .load()
+object Main extends SparkMachine with Logging {
+  import spark.implicits._
 
-    df.selectExpr("CAST(value AS STRING)").show(truncate=false)
+  def getPayload(df:DataFrame): DataFrame = {
     val schema = new StructType()
       .add("payload", StringType)
 
@@ -67,7 +46,66 @@ object Main {
       $"parsed_payload.author".alias("author"),
       $"parsed_payload.date".alias("date")
     )
-    payloadParsedDF.show()
-    payloadParsedDF.printSchema()
+    payloadParsedDF
+
   }
+
+  def getRelevantTokens(model: PipelineModel,titleDF:DataFrame): DataFrame = {
+    val res=model.transform(titleDF)
+    val explodedDF=res.withColumn("explodedPosTagging",explode($"posTagging")).drop("token","document","posTagging")
+    val pertinentDF=explodedDF.withColumn("token",$"explodedPosTagging.metadata")
+      .filter($"explodedPosTagging.result".startsWith("NN"))
+      .withColumn("token",expr("token['word']"))
+    pertinentDF.groupBy("title").agg(collect_list("token").as("relevant_tokens"))
+  }
+
+
+
+  def main(args: Array[String]): Unit = {
+    if (args.length != 1 || (args(0) != "local" && args(0) != "k8s")) {
+      logger.error("Usage: Main <mode>")
+      logger.info("Modes: local | k8s")
+      System.exit(1)
+    }
+    val mode: Boolean = args(0) == "k8s"
+    val kafkaParams = Map[String, String](
+      "kafka.bootstrap.servers" ->( if (mode) "kafka-service.default.svc.cluster.local:9092" else  "localhost:9092"),
+      "subscribePattern" -> "topic-*",
+      "startingOffsets"-> "earliest",
+      "endingOffsets"-> "latest"
+    )
+    println(s"Mode : $mode")
+    println(kafkaParams)
+
+    val df=spark
+      .read
+      .format("kafka")
+      .options(kafkaParams)
+      .load()
+    val titleDF=getPayload(df).select("title")
+
+    val documentAssembler= new DocumentAssembler()
+      .setInputCol("title")
+      .setOutputCol("document")
+    val  tokenizer=new Tokenizer()
+      .setInputCols("document").setOutputCol("token")
+
+    val posTagger:PerceptronModel=try{
+      PerceptronModel.load("/tmp/jars/pos_anc_en").setInputCols(Array("document", "token")).setOutputCol("posTagging")// Path model 4 k8s
+    }catch{
+      case exception: Exception=>{
+       println("Failed to load model localy, Downloading it using ResourceDownloader")
+        PerceptronModel.pretrained().setInputCols(Array("document", "token")).setOutputCol("posTagging")
+      }
+    }
+
+    val pipeline_POS= new Pipeline()
+      .setStages(Array(documentAssembler,tokenizer,posTagger))
+    val model=pipeline_POS.fit(titleDF)
+    val relevantTokens: DataFrame = getRelevantTokens(model, titleDF)
+    relevantTokens.show(5)
+    val taggedDF:DataFrame=Tagger.tagDF(relevantTokens,spark)
+    taggedDF.show(5,truncate=false)
+  }
+
 }
