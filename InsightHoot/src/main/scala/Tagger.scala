@@ -15,17 +15,6 @@ object Tagger {
         tag=> tags:+= DocumentTag(tag.str,theme)
       )
   })
-//  println("Tags:",tags,tags.length)
-
-
-  //  val mapTags= jsonTags.obj.mapValues({
-  //    case ujson.Arr(arr) => arr.map(_.str.toLowerCase)
-  //    case _ => Seq.empty[String]
-  //  })
-  //  val mapTags:LinkedHashMap[String,Seq[String]] =jsonTags.arr
-//  val tags:Map[String,Seq[String]]=jsonTags.obj.mapValues(value=>value.arr.map(_.str).toSeq)
-//  val tags: Seq[String]=Seq("hello")
-
 
   def getTokenTag(token:String,min_score:Double=0.5): Option[DocumentTag]={
     val scores=tags.map(tag=>{Levenshtein.score(token.toLowerCase(),tag.tag.toLowerCase())})
