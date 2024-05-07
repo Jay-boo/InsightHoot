@@ -1,7 +1,6 @@
 import org.apache.spark.sql.{DataFrame }
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
-import org.apache.logging.log4j.scala.Logging
 import com.johnsnowlabs.nlp.annotators.Tokenizer
 import com.johnsnowlabs.nlp.annotators.pos.perceptron.PerceptronModel
 import com.johnsnowlabs.nlp.base.DocumentAssembler
