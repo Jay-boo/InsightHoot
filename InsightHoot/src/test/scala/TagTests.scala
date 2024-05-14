@@ -79,5 +79,4 @@ class TagTests extends munit.FunSuite with SparkMachine {
       Seq("Ubuntu","OS")
     )
   }
-
 }
