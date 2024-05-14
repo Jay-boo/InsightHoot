@@ -11,6 +11,9 @@ import org.apache.spark.ml.{Pipeline, PipelineModel};
 
 object Main extends SparkMachine with Logging {
   import spark.implicits._
+  import DatabaseManager._
+  createSchema()
+  println("Done : Creating Schema")
 
   def getPayload(df:DataFrame): DataFrame = {
     val schema = new StructType()

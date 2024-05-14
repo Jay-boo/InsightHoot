@@ -13,6 +13,12 @@ libraryDependencies += "org.apache.logging.log4j" %% "log4j-api-scala" % "13.0.0
 libraryDependencies += "com.lihaoyi" %% "upickle" % "3.3.0"
 libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.9.1"
 libraryDependencies += "com.github.vickumar1981" %% "stringdistance" % "1.2.7"
+libraryDependencies ++= Seq(
+  "org.postgresql" % "postgresql" % "42.5.1",
+  "com.typesafe.slick" %% "slick" % "3.3.0",
+  "org.slf4j" % "slf4j-nop" % "1.6.4",
+  "com.typesafe.slick" %% "slick-hikaricp" % "3.3.0"
+)
 
 libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
 libraryDependencies += "org.apache.logging.log4j" % "log4j-core" % "2.19.0" % Runtime
