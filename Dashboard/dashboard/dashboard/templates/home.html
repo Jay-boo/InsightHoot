@@ -3,10 +3,14 @@
 {% load socialaccount %}
 
 {% block content %}
-<center><h1>Dashboard</h1></center>
+<h2>Dashboard</h2>
 {% if user.is_authenticated %}
 <p>Welcome {{ user.username }} !!!</p>
 {% else %}
+<p>Welcome to Insight Hoot ! 
+Please login first to access the dashboard.
+
+</p>
  <!-- <a href="/accounts/microsoft/login/?process=login">Sign Up with Microsoft</a> -->
 {% endif %}
 {% endblock %}

@@ -1,53 +1,101 @@
-{% load static %}
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Insight Hoot{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="/static/insighthootlogo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{% static "ionicons/css/ionicons.css" %}">
+    <link rel="stylesheet" type='text/css' href="{% static 'style.css' %}">
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-light"   style="background-color: #9EB8D9;>
-          <a class="navbar-brand" href="{% url 'home' %}"><img src="/static/insighthootlogo.png" alt="" width="50" height="50"> Insight Hoot</a>
-            {% if user.is_anonymous  %}
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                  <form action="/accounts/microsoft/login/?process=login" method="get">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-link"><i class="fas fa-sign-in-alt"></i> Login</button>
-                  </form>
-                </li>
-            </ul>
-            {% endif %}
-            {% if user.is_authenticated  %}
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                  <form action="{% url 'logout' %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-link"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                  </form>
-                </li>
-            </ul>
-            {% endif %}
-        </nav>
-    </header>
-    <main>
-        <div class="container">
-            {% block content %}
-            {% endblock %}
-        </div>
-        <div class="container-fluid">
-            {% block content-fluid %}
-            {% endblock %}
-        </div>
+<!-- Navbar -->
+    <nav id="navbar">
+      <ul class="navbar-items flexbox-col">
+        <li class="navbar-logo flexbox-left">
+          <a class="navbar-item-inner flexbox">
+            <img src="/static/insighthootlogo.png" alt="" width="50" height="50">
+          </a>
+          <a class="navbar-item-inner flexblox-left">
+          <span class="link-text">Insight Hoot</span>
+          </a>
+        </li>
+       <li class="navbar-item flexbox-left">
+       <form class="navbar-item flexbox-left" id="home-form" action="{% url 'home' %}" method="GET">
+        {% csrf_token %}
+        <!-- CSRF token field if required by your backend -->
+        <!-- <input type="hidden" name="_token" value="your_csrf_token_here"> -->
+        <a href="#" onclick="document.getElementById('home-form').submit();" class="navbar-item-inner flexbox-left">
+          <div class="navbar-item-inner-icon-wrapper flexbox">
+            <i class="fas fa-home"></i> <!-- Use appropriate icon for logout -->
+          </div>
+          <span class="link-text">Home</span>
+        </a>
+       </form>
 
-    </main>
+        {% if user.is_anonymous  %}
+        <li class="navbar-item flexbox-left">
+      <form class="navbar-item flexbox-left" id="login-form" action="/accounts/microsoft/login/?process=login" method="GET">
+        {% csrf_token %}
+        <!-- CSRF token field if required by your backend -->
+        <!-- <input type="hidden" name="_token" value="your_csrf_token_here"> -->
+        <a href="#" onclick="document.getElementById('login-form').submit();" class="navbar-item-inner flexbox-left">
+          <div class="navbar-item-inner-icon-wrapper flexbox">
+            <i class="fas fa-sign-in-alt"></i> <!-- Use appropriate icon for logout -->
+          </div>
+          <span class="link-text">Login</span>
+        </a>
+      </form>
+        </li>
+        {% endif %}
+
+        {% if user.is_authenticated  %}
+        <li class="navbar-item flexbox-left">
+      <form class="navbar-item flexbox-left" id="logout-form" action="{% url 'logout' %}" method="POST">
+        {% csrf_token %}
+        <!-- CSRF token field if required by your backend -->
+        <!-- <input type="hidden" name="_token" value="your_csrf_token_here"> -->
+        <a href="#" onclick="document.getElementById('logout-form').submit();" class="navbar-item-inner flexbox-left">
+          <div class="navbar-item-inner-icon-wrapper flexbox">
+            <i class="fas fa-sign-out-alt"></i> <!-- Use appropriate icon for logout -->
+          </div>
+          <span class="link-text">Logout</span>
+        </a>
+      </form>
+        </li>
+        <li class="navbar-item flexbox-left">
+      <form class="navbar-item flexbox-left" id="feedviewer-form" action="{% url 'feedviewer:topics' %}" method="GET">
+        {% csrf_token %}
+        <!-- CSRF token field if required by your backend -->
+        <!-- <input type="hidden" name="_token" value="your_csrf_token_here"> -->
+        <a href="#" onclick="document.getElementById('feedviewer-form').submit();" class="navbar-item-inner flexbox-left">
+          <div class="navbar-item-inner-icon-wrapper flexbox">
+             <i class="fas fa-stream"></i><!-- Use appropriate icon for logout -->
+          </div>
+          <span class="link-text">Feedviewer</span>
+        </a>
+      </form>
+        </li>
+
+        {% endif %}
+      </ul>
+</nav>
+    </header>
+    <main id="main">
+      <div class="flexbox-col-left-ns">
+      {% block content %}
+      {% endblock %}
+      </div>
+      <div class="flexbox-col-start-left">
+      {% block content-left %}
+      {% endblock %}
+      </div>
+    </main>     
 </body>
 </html>

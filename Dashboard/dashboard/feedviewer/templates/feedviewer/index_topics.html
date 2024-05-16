@@ -1,3 +1,5 @@
+{% extends "base.html" %}
+{% block content-left %}
 {% if topics_list %}
     <ul>
     {% for topic in topics_list %}
@@ -7,4 +9,4 @@
 {% else %}
     <p>No topics are available.</p>
 {% endif %}
-
+{% endblock %}
