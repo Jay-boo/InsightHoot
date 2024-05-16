@@ -1,0 +1,12 @@
+<!-- templates/home.html -->
+{% extends "base.html" %}
+{% load socialaccount %}
+
+{% block content %}
+<center><h1>Dashboard</h1></center>
+{% if user.is_authenticated %}
+<p>Welcome {{ user.username }} !!!</p>
+{% else %}
+ <!-- <a href="/accounts/microsoft/login/?process=login">Sign Up with Microsoft</a> -->
+{% endif %}
+{% endblock %}
