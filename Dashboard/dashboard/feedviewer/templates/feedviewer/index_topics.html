@@ -1,0 +1,10 @@
+{% if topics_list %}
+    <ul>
+    {% for topic in topics_list %}
+        <li><a href="{% url 'feedviewer:index' topic.name %}">{{ topic.name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No topics are available.</p>
+{% endif %}
+

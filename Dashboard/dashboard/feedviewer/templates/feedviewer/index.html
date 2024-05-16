@@ -1,0 +1,9 @@
+{% if latest_message_list %}
+    <ul>
+    {% for message in latest_message_list %}
+        <li><a href="{% url 'feedviewer:detail' message.id %}">{{ message.title }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No messages are available.</p>
+{% endif %}
