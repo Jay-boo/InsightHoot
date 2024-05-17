@@ -8,7 +8,7 @@ class Messages(models.Model):
     class Meta:
         managed = True 
         db_table = 'messages'
-
+#comment
 
 class Tags(models.Model):
     label = models.CharField(max_length=255)
