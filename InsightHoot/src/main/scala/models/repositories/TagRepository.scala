@@ -15,15 +15,15 @@ trait TagRepositoryComponent{
   def all(limit:Int,offset:Int):Future[Seq[TagTheme]]
 }
 
-class TagRepository  extends  TagRepositoryComponent {
-  import DatabaseConfig.profile.api._
-  val table:TagComponent= new TagComponent(DatabaseConfig.profile)
-  val db:Database = DatabaseConfig.db
+class TagRepository(val databaseConfig: DatabaseConfig)  extends  TagRepositoryComponent {
+  import databaseConfig.profile.api._
+  val table:TagComponent= new TagComponent(databaseConfig.profile)
+  val db:Database = databaseConfig.db
   import table.tagQuery
 
 
   override def add(tagTheme: TagTheme): Future[Int] = {
-    db.run(tagQuery+=tagTheme)
+    db.run((tagQuery returning tagQuery.map(_.id))+=tagTheme)
   }
 
   override def beforeAll(): Future[Unit] = {

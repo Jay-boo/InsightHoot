@@ -1,5 +1,7 @@
 package models.repositories
 
+import models.DatabaseConfig
+
 import scala.concurrent.Future
 import models.entities.Topic
 import models.db.TopicComponent
@@ -14,10 +16,10 @@ trait TopicRepositoryComponent{
 }
 
 
-class TopicRepository extends TopicRepositoryComponent{
-  import models.DatabaseConfig.profile.api._
-  val table:TopicComponent=new TopicComponent(models.DatabaseConfig.profile)
-  val db:Database=models.DatabaseConfig.db
+class TopicRepository(val databaseConfig: DatabaseConfig) extends TopicRepositoryComponent{
+  import databaseConfig.profile.api._
+  val table:TopicComponent=new TopicComponent(databaseConfig.profile)
+  val db: Database = databaseConfig.db
   import table.topicQuery
 
   override def beforeAll(): Future[Unit] ={
@@ -28,7 +30,7 @@ class TopicRepository extends TopicRepositoryComponent{
 
   override def add(topic: Topic): Future[Int] = {
     db.run(
-      topicQuery+=topic
+      (topicQuery returning topicQuery.map(_.id))+=topic
     )
   }
 
@@ -55,6 +57,5 @@ class TopicRepository extends TopicRepositoryComponent{
     db.run(
       topicQuery.drop(offset).take(limit).result
     )
-
   }
 }

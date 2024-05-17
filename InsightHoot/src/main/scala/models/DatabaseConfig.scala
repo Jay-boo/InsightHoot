@@ -1,10 +1,14 @@
 package models
 
-import slick.jdbc.PostgresProfile.api._
+import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.JdbcProfile
 
+trait DatabaseConfig{
+  val profile:JdbcProfile
+  val db:Database
+}
 
-object DatabaseConfig {
-  val db = Database.forConfig("postgres")
-  val profile:JdbcProfile=slick.jdbc.PostgresProfile
+object MainDatabaseConfig extends DatabaseConfig {
+  override val db = Database.forConfig("postgres")
+  override val profile:JdbcProfile=slick.jdbc.PostgresProfile
 }

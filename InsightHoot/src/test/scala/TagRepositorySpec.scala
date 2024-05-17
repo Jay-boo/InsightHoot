@@ -6,23 +6,13 @@ import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 
 class TagRepositorySpec extends munit.FunSuite {
-  object TestDatabaseConfig{
-    val profile=slick.jdbc.H2Profile
-    import profile.api._
-    val db= Database.forConfig("h2mem1")
-  }
 
-  class TestTagRepository extends TagRepository{
-    override val table: TagComponent = new TagComponent(TestDatabaseConfig.profile)
-    import TestDatabaseConfig.profile.api._
-    override val db:Database= TestDatabaseConfig.db
-  }
 
+  val tagRepository=new TagRepository(TestDatabaseConfig)
   override def beforeAll(): Unit = {
     Await.result(tagRepository.beforeAll(),10.seconds)
   }
 
-  val tagRepository=new TestTagRepository
 
   test("beforeAll should create schema if not exist else "){
     val schemaCreated=Await.result(tagRepository.beforeAll(),10.seconds)
@@ -41,6 +31,8 @@ class TagRepositorySpec extends munit.FunSuite {
       case None => fail("No record found with id == 1 after insert Tag ")
     }
     println("info :",addedRow)
+    val addResultSecond:Int=Await.result(tagRepository.add(tagTheme),10.seconds)
+    assertEquals(addResultSecond,2)
   }
 
 
@@ -64,7 +56,6 @@ class TagRepositorySpec extends munit.FunSuite {
     deletedRecord match {
       case Some(record)=> fail("Record still found after delete")
       case None =>
-
     }
   }
 

@@ -1,21 +1,30 @@
+package models.repositories
+
+import models.DatabaseConfig
+
 import scala.concurrent.Future
 import models.entities.Message
+import models.repositories.TopicRepositoryComponent
 import models.db.{MessageComponent, TagComponent, TopicComponent}
 import slick.jdbc.JdbcProfile
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait MessageRepositoryComponent{
   def beforeAll():Future[Unit]
   def add(message:Message):Future[Int]
-  def update(message: Message):Future[Int]
-  def deleteBy(messageId:Int):Future[Int]
+  def deleteById(messageId:Int):Future[Int]
   def getById(messageId:Int):Future[Option[Message]]
   def all(limit:Int,offset:Int):Future[Seq[Message]]
 }
-class MessageRepository(tagComponent:TagComponent,topicComponent:TopicComponent) extends MessageRepositoryComponent {
-  val profile:JdbcProfile=tagComponent.profile
+
+
+
+
+class MessageRepository(val databaseConfig:DatabaseConfig,val tagRepository:TagRepository,val topicRepository:TopicRepository) extends MessageRepositoryComponent {
+  val profile:JdbcProfile=databaseConfig.profile
   import profile.api._
-  val table:MessageComponent= new MessageComponent(models.DatabaseConfig.profile,tagComponent)
-  val db:Database=models.DatabaseConfig.db
+  val table:MessageComponent= new MessageComponent(databaseConfig.profile,tagRepository.table,topicRepository.table)
+  val db:Database=databaseConfig.db
   import table.messagesQuery
 
   override def beforeAll(): Future[Unit] = {
@@ -25,16 +34,30 @@ class MessageRepository(tagComponent:TagComponent,topicComponent:TopicComponent)
   }
 
   override def add(message: Message): Future[Int] = {
-    db.run(
-      messagesQuery+=message
+    import topicRepository.table.topicQuery
+    import tagRepository.table.tagQuery
+    val topicExists:Future[Boolean]=db.run(topicQuery.filter(_.id===message.topic_id).exists.result)
+    val tagExists:Future[Boolean]=db.run(tagQuery.filter(_.id===message.tag_id).exists.result)
+    val bothExist:Future[Boolean]=for{
+      tagExist <- tagExists
+      topicExist <- topicExists
+    }yield topicExist && tagExist
+    bothExist.flatMap(
+      (exist)=>{
+        if(exist){
+          db.run(
+            (messagesQuery returning messagesQuery.map(_.id))+=message
+          )
+        }else{
+          Future.failed[Int](new Exception(s"Topic Id :${message.topic_id} and/or Tag Id:${message.tag_id} don't exist"))
+        }
+
+      }
     )
   }
 
-  override def update(message: Message): Future[Int] = {
-    db.run(messagesQuery.filter(_.id===message.id).update(message))
-  }
 
-  override def deleteBy(messageId: Int): Future[Int] = {
+  override def deleteById(messageId: Int): Future[Int] = {
     db.run(messagesQuery.filter(_.id===messageId).delete)
   }
 
