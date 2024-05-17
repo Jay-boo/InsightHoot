@@ -55,7 +55,7 @@ InsightHoot/.idea/**/mongoSettings.xml
 
 # File-based project format
 *.iws
-
+*.sqlite3
 # IntelliJ
 out/
 
