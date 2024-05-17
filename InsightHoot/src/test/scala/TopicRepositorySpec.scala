@@ -7,13 +7,17 @@ import scala.concurrent.duration.DurationInt
 class TopicRepositorySpec  extends munit.FunSuite {
   val topicRepository=new TopicRepository(TestDatabaseConfig)
 
-  override def beforeAll(): Unit = {
-    Await.result(topicRepository.beforeAll(),10.seconds)
+  override def beforeEach(context:BeforeEach): Unit = {
+    Await.result(topicRepository.beforeEach(),10.seconds)
+  }
+
+  override def afterEach(context: AfterEach): Unit = {
+    Await.result(topicRepository.afterEach(),10.seconds)
   }
 
 
-  test("beforeAll should create schema if not exist else "){
-    val schemaCreated=Await.result(topicRepository.beforeAll(),10.seconds)
+  test("beforeEach should create schema if not exist else "){
+    val schemaCreated=Await.result(topicRepository.beforeEach(),10.seconds)
     assert(schemaCreated.isInstanceOf[Unit])
   }
 

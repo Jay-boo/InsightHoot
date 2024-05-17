@@ -7,7 +7,8 @@ import models.entities.TagTheme
 import scala.concurrent.Future
 
 trait TagRepositoryComponent{
-  def beforeAll():Future[Unit]
+  def beforeEach():Future[Unit]
+  def afterEach():Future[Unit]
   def add(tagTheme: TagTheme):Future[Int]
   def update(tagTheme: TagTheme):Future[Int]
   def deleteBy(tagId: Int):Future[Int]
@@ -26,8 +27,13 @@ class TagRepository(val databaseConfig: DatabaseConfig)  extends  TagRepositoryC
     db.run((tagQuery returning tagQuery.map(_.id))+=tagTheme)
   }
 
-  override def beforeAll(): Future[Unit] = {
+  override def beforeEach(): Future[Unit] = {
     db.run(tagQuery.schema.createIfNotExists)
+  }
+  override def afterEach(): Future[Unit] = {
+    db.run(
+      tagQuery.schema.dropIfExists
+    )
   }
 
   override def getById(tagId: Int): Future[Option[TagTheme]] = {

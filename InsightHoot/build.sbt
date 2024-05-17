@@ -31,3 +31,4 @@ assemblyMergeStrategy in assembly := {
 }
 
 assemblyOutputPath in assembly := file("../jars/InsightHootKafka-3.5.1-8-2.12.jar")
+Test / parallelExecution := false

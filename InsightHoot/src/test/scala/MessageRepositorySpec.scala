@@ -16,20 +16,28 @@ class MessageRepositorySpec extends munit.FunSuite {
     topicRepository = topicRepository
   )
 
-  override def beforeAll(): Unit = {
-    Await.result(messageRepository.beforeAll(),10.seconds)
-    Await.result(tagRepository.beforeAll(),10.seconds)
-    Await.result(topicRepository.beforeAll(),10.seconds)
-//    Await.result(messageRepository.beforeAll(),10.seconds)
+  override def beforeEach(context: BeforeEach): Unit = {
+    Await.result(messageRepository.beforeEach(),10.seconds)
+    Await.result(tagRepository.beforeEach(),10.seconds)
+    Await.result(topicRepository.beforeEach(),10.seconds)
+  }
+
+
+  override def afterEach(context: AfterEach): Unit = {
+    Await.result(messageRepository.afterEach(),10.seconds)
+    Await.result(tagRepository.afterEach(),10.seconds)
+    Await.result(topicRepository.afterEach(),10.seconds)
+
   }
   test("beforeAll should not recreate schema if exist "){
-    val schemaCreated=Await.result(messageRepository.beforeAll(),10.seconds)
+    val schemaCreated=Await.result(messageRepository.beforeEach(),10.seconds)
     assert(schemaCreated.isInstanceOf[Unit])
   }
 
   test("Add should insert a Message if topic_id and tag_id exist"){
     val msg:Message=Message(None,"Lorem Ipsum",1,1)
     println("-------Inserting Tag and Topic value------")
+
     Await.result(messageRepository.tagRepository.add(TagTheme(None,"Label1","Theme1")),10.seconds)
     Await.result(messageRepository.topicRepository.add(Topic(None,"titleTopic1","UrlTopic1")),10.seconds)
     Await.result(messageRepository.tagRepository.all(3,0),10.seconds).foreach(println)

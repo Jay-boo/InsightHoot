@@ -9,19 +9,25 @@ class TagRepositorySpec extends munit.FunSuite {
 
 
   val tagRepository=new TagRepository(TestDatabaseConfig)
-  override def beforeAll(): Unit = {
-    Await.result(tagRepository.beforeAll(),10.seconds)
+  override def beforeEach(context:BeforeEach): Unit = {
+    Await.result(tagRepository.beforeEach(),10.seconds)
+  }
+
+  override def afterEach(context: AfterEach): Unit = {
+    Await.result(tagRepository.afterEach(),10.seconds)
   }
 
 
-  test("beforeAll should create schema if not exist else "){
-    val schemaCreated=Await.result(tagRepository.beforeAll(),10.seconds)
+  test("beforeEach should create schema if not exist else "){
+    val schemaCreated=Await.result(tagRepository.beforeEach(),10.seconds)
     assert(schemaCreated.isInstanceOf[Unit])
   }
 
 
 
   test ("add should insert a TagTheme"){
+
+
     val tagTheme:TagTheme=TagTheme(None,"Tag1","AI")
     val addResult:Int=Await.result(tagRepository.add(tagTheme),10.seconds)
     assertEquals(addResult,1)

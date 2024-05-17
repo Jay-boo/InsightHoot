@@ -7,7 +7,8 @@ import models.entities.Topic
 import models.db.TopicComponent
 
 trait TopicRepositoryComponent{
-  def beforeAll():Future[Unit]
+  def beforeEach():Future[Unit]
+  def afterEach():Future[Unit]
   def add(topic:Topic):Future[Int]
   def update(topic:Topic):Future[Int]
   def deleteBy(topicId:Int):Future[Int]
@@ -22,9 +23,14 @@ class TopicRepository(val databaseConfig: DatabaseConfig) extends TopicRepositor
   val db: Database = databaseConfig.db
   import table.topicQuery
 
-  override def beforeAll(): Future[Unit] ={
+  override def beforeEach(): Future[Unit] ={
     db.run(
       topicQuery.schema.createIfNotExists
+    )
+  }
+  override def afterEach(): Future[Unit] = {
+    db.run(
+      topicQuery.schema.dropIfExists
     )
   }
 

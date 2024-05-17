@@ -10,7 +10,8 @@ import slick.jdbc.JdbcProfile
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait MessageRepositoryComponent{
-  def beforeAll():Future[Unit]
+  def beforeEach():Future[Unit]
+  def afterEach():Future[Unit]
   def add(message:Message):Future[Int]
   def deleteById(messageId:Int):Future[Int]
   def getById(messageId:Int):Future[Option[Message]]
@@ -27,9 +28,14 @@ class MessageRepository(val databaseConfig:DatabaseConfig,val tagRepository:TagR
   val db:Database=databaseConfig.db
   import table.messagesQuery
 
-  override def beforeAll(): Future[Unit] = {
+  override def beforeEach(): Future[Unit] = {
     db.run(
       messagesQuery.schema.createIfNotExists
+    )
+  }
+  override def afterEach(): Future[Unit] = {
+    db.run(
+      messagesQuery.schema.dropIfExists
     )
   }
 
