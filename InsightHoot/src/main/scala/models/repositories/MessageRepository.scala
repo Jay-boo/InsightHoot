@@ -57,7 +57,6 @@ class MessageRepository(val databaseConfig:DatabaseConfig,val tagRepository:TagR
         }else{
           Future.failed[Int](new Exception(s"Topic Id :${message.topic_id} and/or Tag Id:${message.tag_id} don't exist"))
         }
-
       }
     )
   }
@@ -71,7 +70,6 @@ class MessageRepository(val databaseConfig:DatabaseConfig,val tagRepository:TagR
     db.run(
       messagesQuery.filter(_.id===messageId).result.headOption
     )
-
   }
 
   override def all(limit: Int, offset: Int): Future[Seq[Message]] = {
