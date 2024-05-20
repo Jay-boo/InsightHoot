@@ -1,6 +1,6 @@
 import com.github.vickumar1981.stringdistance.StringDistance.Levenshtein
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
-
+import org.apache.spark.sql.functions._
 import java.sql.Timestamp
 import scala.io.Source
 
@@ -37,10 +37,14 @@ object Tagger {
 
   def tagDF(df: DataFrame, spark: SparkSession): DataFrame = {
     import spark.implicits._
-    val dfWithTags: DataFrame = df.map { case Row(title: String, date: Timestamp, feed_url: String, link: String, relevant_tokens: Seq[String]) =>
-      val tags = getDocumentTags(relevant_tokens)
-      (title, date, feed_url, link, relevant_tokens, tags)
-    }.toDF("title", "date", "feed_url", "link", "relevant_tokens", "tags")
+    val dfWithTags: DataFrame = df.map {
+      case Row(title: String, date: Timestamp, feed_url: String, link: String, content:String,relevant_tokens: Seq[String]) =>
+        val tags = getDocumentTags(relevant_tokens)
+        (title, date, feed_url, link, content,relevant_tokens, tags)
+      case Row(title: String, date: Timestamp, feed_url: String, link: String, null,relevant_tokens: Seq[String]) =>
+        val tags = getDocumentTags(relevant_tokens)
+        (title, date, feed_url, link, null,relevant_tokens, tags)
+    }.toDF("title", "date", "feed_url", "link", "content","relevant_tokens", "tags")
     dfWithTags
   }
 
