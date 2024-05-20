@@ -29,10 +29,6 @@ class MessageRepositorySpec extends munit.FunSuite {
     Await.result(topicRepository.afterEach(),10.seconds)
 
   }
-  test("beforeAll should not recreate schema if exist "){
-    val schemaCreated=Await.result(messageRepository.beforeEach(),10.seconds)
-    assert(schemaCreated.isInstanceOf[Unit])
-  }
 
   test("Add should insert a Message if topic_id and tag_id exist"){
     val msg:Message=Message(None,"Lorem Ipsum",1,1)

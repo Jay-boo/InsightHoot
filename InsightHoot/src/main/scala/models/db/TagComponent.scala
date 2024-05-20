@@ -11,6 +11,7 @@ class TagComponent(val profile:JdbcProfile) {
     def label = column[String]("label")
     def theme = column[String]("theme")
     def * = (id.?, label,  theme).mapTo[TagTheme]
+    def idx = index("idx_a", (label, theme), unique = true)
   }
   val tagQuery:TableQuery[Tags]=TableQuery[Tags]
 }
