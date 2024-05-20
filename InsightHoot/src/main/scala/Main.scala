@@ -101,7 +101,6 @@ object Main extends SparkMachine with Logging {
     val pipeline_POS= new Pipeline()
       .setStages(Array(documentAssembler,tokenizer,posTagger))
     val model=pipeline_POS.fit(titleDF.select("title", "date", "feed_url", "link","content"))
-    titleDF.show(4)
     val relevantTokens: DataFrame = getRelevantTokens(model, titleDF.select("title", "date", "feed_url", "link","content"))
     relevantTokens.show(4)
     val taggedDF:DataFrame=Tagger.tagDF(relevantTokens,spark)
