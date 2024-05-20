@@ -5,6 +5,7 @@ import models.db.TagComponent
 import models.entities.TagTheme
 
 import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
 trait TagRepositoryComponent{
   def beforeEach():Future[Unit]

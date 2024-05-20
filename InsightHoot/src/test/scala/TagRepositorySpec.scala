@@ -4,6 +4,7 @@ import models.repositories.TagRepository
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
+import scala.util.Try
 
 class TagRepositorySpec extends munit.FunSuite {
 
@@ -15,19 +16,11 @@ class TagRepositorySpec extends munit.FunSuite {
 
   override def afterEach(context: AfterEach): Unit = {
     Await.result(tagRepository.afterEach(),10.seconds)
-  }
-
-
-  test("beforeEach should create schema if not exist else "){
-    val schemaCreated=Await.result(tagRepository.beforeEach(),10.seconds)
-    assert(schemaCreated.isInstanceOf[Unit])
-  }
+}
 
 
 
   test ("add should insert a TagTheme"){
-
-
     val tagTheme:TagTheme=TagTheme(None,"Tag1","AI")
     val addResult:Int=Await.result(tagRepository.add(tagTheme),10.seconds)
     assertEquals(addResult,1)
@@ -37,8 +30,19 @@ class TagRepositorySpec extends munit.FunSuite {
       case None => fail("No record found with id == 1 after insert Tag ")
     }
     println("info :",addedRow)
-    val addResultSecond:Int=Await.result(tagRepository.add(tagTheme),10.seconds)
+    val addResultSecond:Int=Await.result(tagRepository.add(TagTheme(None,"Tag2","AI")),10.seconds)
     assertEquals(addResultSecond,2)
+  }
+  test ("add should raise exception when inserting a TagTheme if (tag, theme) already exist "){
+    val tagTheme:TagTheme=TagTheme(None,"Tag1","AI")
+    val addResult:Int=Await.result(tagRepository.add(tagTheme),10.seconds)
+    try{
+      val addedSecondRow=Await.result(tagRepository.add(tagTheme), 10.seconds)
+
+    }catch {
+      case e:org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException=>{println("Expected Exception Raised")}
+      case _=> fail("Exception waited iw JdbcSQLIntegrityConstrintViolationException")
+    }
   }
 
 
