@@ -4,7 +4,11 @@ import com.johnsnowlabs.nlp.base.DocumentAssembler
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.functions._
+import org.joda.time.LocalDateTime
 
+import java.sql.Timestamp
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import scala.collection.mutable
 import scala.io.Source
 
@@ -30,9 +34,14 @@ class TagTests extends munit.FunSuite with SparkMachine {
 
   val pipeline_POS= new Pipeline()
     .setStages(Array(documentAssembler,tokenizer,posTagger))
-  val model=pipeline_POS.fit(payloadDF)
-  val titleDF:DataFrame = Seq(("Ubuntu new upgrade is now available !")).toDF("title")
-  val relevantTokensDF:DataFrame=Main.getRelevantTokens(model,titleDF)
+  val model=pipeline_POS.fit(payloadDF.select("title", "date", "feed_url", "link","content"))
+  val titleDF:DataFrame = Seq(("Ubuntu new upgrade is now available !",
+    Timestamp.valueOf("2024-05-19 17:41:48"),
+    "https://www.reddit.com/r/technology/top.rss?t=day",
+    "https://www.reddit.com/r/technology/comments/1cvr5av/where_is_the_optout_button_slack_users_horrified/",
+    "Lorem Ipsum"
+  )).toDF("title", "date", "feed_url", "link","content")
+  val relevantTokensDF:DataFrame=Main.getRelevantTokens(model,titleDF.select("title", "date", "feed_url", "link","content"))
 
   test("Payload  collect"){
     val expectedColumns: Seq[String]= Seq("feed_title","feed_url","title","id","link","content","author","date")
@@ -55,7 +64,7 @@ class TagTests extends munit.FunSuite with SparkMachine {
 
   test("Detect relevant tokens"){
 
-    assertEquals(relevantTokensDF.columns.toSeq,Seq("title","relevant_tokens"))
+    assertEquals(relevantTokensDF.columns.toSeq,Seq("title", "date", "feed_url", "link","content", "relevant_tokens"))
     val row : Row =relevantTokensDF.collect()(0)
     val resultedRelevantTokens:Seq[String]=row.getAs[mutable.WrappedArray[String]]("relevant_tokens").toSeq
     println(resultedRelevantTokens)
@@ -67,7 +76,7 @@ class TagTests extends munit.FunSuite with SparkMachine {
   test("Getting document tags"){
     val taggedDF:DataFrame=Tagger.tagDF(relevantTokensDF,spark)
     taggedDF.show()
-    assertEquals(taggedDF.columns.toSeq,Seq("title","relevant_tokens","tags"))
+    assertEquals(taggedDF.columns.toSeq,Seq("title","date", "feed_url", "link","content", "relevant_tokens","tags"))
     val tags:Seq[Seq[String]]=taggedDF.collect()(0).getAs[mutable.WrappedArray[Seq[String]]]("tags")
     assertEquals(
       tags.length,
