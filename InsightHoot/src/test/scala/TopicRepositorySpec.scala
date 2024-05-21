@@ -54,7 +54,7 @@ class TopicRepositorySpec  extends munit.FunSuite {
     assertEquals(updateResult, 1)
     val retrievedUpdatedTopic:Option[Topic] = Await.result(topicRepository.getById(insertedId), 10.seconds)
     assertEquals(retrievedUpdatedTopic.map(_.url), Some(initialTopic.url))
-    assertEquals(retrievedUpdatedTopic.map(_.title), Some(updatedTopic.title))
+    assertEquals(retrievedUpdatedTopic.map(_.name), Some(updatedTopic.name))
   }
   test("Delete should delete an existing Tag"){
     val initialTopic = Topic(None, "Title1", "url1")

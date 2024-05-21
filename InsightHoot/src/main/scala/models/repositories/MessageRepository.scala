@@ -19,12 +19,10 @@ trait MessageRepositoryComponent{
 }
 
 
-
-
-class MessageRepository(val databaseConfig:DatabaseConfig,val tagRepository:TagRepository,val topicRepository:TopicRepository) extends MessageRepositoryComponent {
+class MessageRepository(val databaseConfig:DatabaseConfig,val topicRepository:TopicRepository) extends MessageRepositoryComponent {
   val profile:JdbcProfile=databaseConfig.profile
   import profile.api._
-  val table:MessageComponent= new MessageComponent(databaseConfig.profile,tagRepository.table,topicRepository.table)
+  val table:MessageComponent= new MessageComponent(databaseConfig.profile,topicRepository.table)
   val db:Database=databaseConfig.db
   import table.messagesQuery
 
@@ -41,23 +39,18 @@ class MessageRepository(val databaseConfig:DatabaseConfig,val tagRepository:TagR
 
   override def add(message: Message): Future[Int] = {
     import topicRepository.table.topicQuery
-    import tagRepository.table.tagQuery
     val topicExists:Future[Boolean]=db.run(topicQuery.filter(_.id===message.topic_id).exists.result)
-    val tagExists:Future[Boolean]=db.run(tagQuery.filter(_.id===message.tag_id).exists.result)
-    val bothExist:Future[Boolean]=for{
-      tagExist <- tagExists
-      topicExist <- topicExists
-    }yield topicExist && tagExist
-    bothExist.flatMap(
-      (exist)=>{
-        if(exist){
-          db.run(
-            (messagesQuery returning messagesQuery.map(_.id))+=message
-          )
-        }else{
-          Future.failed[Int](new Exception(s"Topic Id :${message.topic_id} and/or Tag Id:${message.tag_id} don't exist"))
-        }
+
+
+    topicExists.flatMap((exist)=>{
+      if(exist){
+        db.run(
+          (messagesQuery returning messagesQuery.map(_.id))+=message
+        )
+      }else{
+        Future.failed[Int](new Exception(s"Topic Id not Found in 'topics' relation"))
       }
+    }
     )
   }
 
