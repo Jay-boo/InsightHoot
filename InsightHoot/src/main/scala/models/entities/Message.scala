@@ -1,4 +1,4 @@
 package models.entities
 
 
-case class Message(id:Option[Int],content:String,topic_id:Int,tag_id:Int)
+case class Message(id:Option[Int],content:String,topic_id:Int)

@@ -38,13 +38,13 @@ object Tagger {
   def tagDF(df: DataFrame, spark: SparkSession): DataFrame = {
     import spark.implicits._
     val dfWithTags: DataFrame = df.map {
-      case Row(title: String, date: Timestamp, feed_url: String, link: String, content:String,relevant_tokens: Seq[String]) =>
+      case Row(title: String, feed_title:String,date: Timestamp, feed_url: String, link: String, content:String,relevant_tokens: Seq[String]) =>
         val tags = getDocumentTags(relevant_tokens)
-        (title, date, feed_url, link, content,relevant_tokens, tags)
-      case Row(title: String, date: Timestamp, feed_url: String, link: String, null,relevant_tokens: Seq[String]) =>
+        (title, feed_title,date, feed_url, link, content,relevant_tokens, tags)
+      case Row(title: String,feed_title:String, date: Timestamp, feed_url: String, link: String, null,relevant_tokens: Seq[String]) =>
         val tags = getDocumentTags(relevant_tokens)
-        (title, date, feed_url, link, null,relevant_tokens, tags)
-    }.toDF("title", "date", "feed_url", "link", "content","relevant_tokens", "tags")
+        (title, feed_title,date, feed_url, link, null,relevant_tokens, tags)
+    }.toDF("title", "feed_title","date", "feed_url", "link", "content","relevant_tokens", "tags")
     dfWithTags
   }
 

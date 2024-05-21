@@ -56,7 +56,7 @@ object Main extends SparkMachine with Logging {
     val pertinentDF=explodedDF.withColumn("token",$"explodedPosTagging.metadata")
       .filter($"explodedPosTagging.result".startsWith("NN"))
       .withColumn("token",expr("token['word']"))
-    pertinentDF.groupBy("title", "date", "feed_url", "link","content").agg(collect_list("token").as("relevant_tokens"))
+    pertinentDF.groupBy("title","feed_title", "date", "feed_url", "link","content").agg(collect_list("token").as("relevant_tokens"))
   }
 
 
@@ -82,7 +82,7 @@ object Main extends SparkMachine with Logging {
       .format("kafka")
       .options(kafkaParams)
       .load()
-    val titleDF=getPayload(df).select("title", "date", "feed_url", "link","content")
+    val titleDF=getPayload(df).select("title", "feed_title","date", "feed_url", "link","content")
     val documentAssembler= new DocumentAssembler()
       .setInputCol("title")
       .setOutputCol("document")
@@ -100,8 +100,8 @@ object Main extends SparkMachine with Logging {
 
     val pipeline_POS= new Pipeline()
       .setStages(Array(documentAssembler,tokenizer,posTagger))
-    val model=pipeline_POS.fit(titleDF.select("title", "date", "feed_url", "link","content"))
-    val relevantTokens: DataFrame = getRelevantTokens(model, titleDF.select("title", "date", "feed_url", "link","content"))
+    val model=pipeline_POS.fit(titleDF.select("title","feed_title", "date", "feed_url", "link","content"))
+    val relevantTokens: DataFrame = getRelevantTokens(model, titleDF.select("title","feed_title", "date", "feed_url", "link","content"))
     relevantTokens.show(4)
     val taggedDF:DataFrame=Tagger.tagDF(relevantTokens,spark)
     taggedDF.show(5,truncate=false)

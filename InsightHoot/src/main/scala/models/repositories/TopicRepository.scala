@@ -13,6 +13,7 @@ trait TopicRepositoryComponent{
   def update(topic:Topic):Future[Int]
   def deleteBy(topicId:Int):Future[Int]
   def getById(topicId:Int):Future[Option[Topic]]
+  def getByUrl(topicUrl:String):Future[Option[Topic]]
   def all(limit:Int,offset:Int):Future[Seq[Topic]]
 }
 
@@ -42,7 +43,7 @@ class TopicRepository(val databaseConfig: DatabaseConfig) extends TopicRepositor
 
   override def update(topic: Topic): Future[Int] = {
     db.run(
-      topicQuery.filter(_.id===topic.id).map(t=>(t.title,t.url)).update((topic.title,topic.url))
+      topicQuery.filter(_.id===topic.id).map(t=>(t.name,t.url)).update((topic.name,topic.url))
     )
   }
 
@@ -56,6 +57,11 @@ class TopicRepository(val databaseConfig: DatabaseConfig) extends TopicRepositor
   override def getById(topicId: Int): Future[Option[Topic]] = {
     db.run(
       topicQuery.filter(_.id===topicId).result.headOption
+    )
+  }
+  override def getByUrl(topicUrl: String): Future[Option[Topic]] = {
+    db.run(
+      topicQuery.filter(_.url===topicUrl).result.headOption
     )
   }
 

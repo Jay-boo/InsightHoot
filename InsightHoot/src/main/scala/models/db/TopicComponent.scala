@@ -9,9 +9,9 @@ class TopicComponent(val profile:JdbcProfile){
 
   class Topics(tag:Tag) extends Table[Topic](tag,"topics"){
     def id = column[Int]("id", O.PrimaryKey,O.AutoInc )
-    def title = column[String]("title")
+    def name = column[String]("name")
     def url = column[String]("url",O.Unique)
-    def * = (id.?, title,url).mapTo[Topic]
+    def * = (id.?, name,url).mapTo[Topic]
 
   }
   val topicQuery:TableQuery[Topics]=TableQuery[Topics]
