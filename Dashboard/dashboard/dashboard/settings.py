@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.microsoft",    
     "fontawesomefree",
-    'graphs.apps.GraphsConfig'
+    "graphs.apps.GraphsConfig"
 ]
 
 MIDDLEWARE = [
@@ -149,7 +149,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / "dashboard" / 'static'
+    BASE_DIR / "dashboard" / 'static',
+    BASE_DIR / "graphs" / 'static'
 ]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

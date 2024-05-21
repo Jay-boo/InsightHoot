@@ -8,14 +8,14 @@ class Messages(models.Model):
     class Meta:
         managed = True 
         db_table = 'messages'
-#comment
+
 
 class Tags(models.Model):
     label = models.CharField(max_length=255)
     theme = models.CharField(max_length=255)
 
     class Meta:
-        managed = False
+        managed = True 
         db_table = 'tags'
 
 
@@ -23,5 +23,5 @@ class Topics(models.Model):
     title = models.CharField(max_length=255)
 
     class Meta:
-        managed = True
+        managed = True 
         db_table = 'topics'

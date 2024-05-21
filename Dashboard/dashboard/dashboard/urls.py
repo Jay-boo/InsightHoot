@@ -21,6 +21,7 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path("feedviewer/", include("feedviewer.urls"), name='feedviewer'),
+    path("graphs/", include("graphs.urls"), name='graphs'),
     path('admin/', admin.site.urls),
     path("accounts/", include("allauth.urls"), name='accounts'),
     path("", TemplateView.as_view(template_name="home.html"), name='home'),
