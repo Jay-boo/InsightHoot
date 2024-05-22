@@ -2,11 +2,12 @@ import models.DatabaseConfig
 import models.entities.{Message, MessageTag}
 import models.db.MessageTagsComponent
 import slick.jdbc.JdbcProfile
+import models.db.{MessageComponent, TagComponent}
+import models.repositories.{MessageRepository, TagRepository, TopicRepository}
 
-import models.db.{TagComponent,MessageComponent}
-import models.repositories.{TopicRepository,TagRepository,MessageRepository}
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.DurationInt
 
 trait MessageTagsRepositoryComponent{
   def beforeEach():Future[Unit]
@@ -38,9 +39,8 @@ class MessageTagsRepository(val databaseConfig:DatabaseConfig,val tagRepository:
   override def add(messageTag: MessageTag): Future[Int] = {
     import tagRepository.table.tagQuery
     import messageRepository.table.messagesQuery
-    val tagExist:Future[Boolean]=db.run(tagQuery.filter(_.id===messageTag.msgId).exists.result)
+    val tagExist:Future[Boolean]=db.run(tagQuery.filter(_.id===messageTag.tagId).exists.result)
     val messageExist:Future[Boolean]=db.run(messagesQuery.filter(_.id===messageTag.msgId).exists.result)
-
     val bothExist:Future[Boolean]=for{
       tag_exist<-tagExist
       msg_exist <- messageExist
