@@ -76,7 +76,10 @@ jobs:
           FOREIGN KEY (topic_id) REFERENCES topics(id),
           FOREIGN KEY (tag_id) REFERENCES tags(id)
         );"
-
+        
+    - name : Change workdir
+      run: cd Dashboard/dashboard
+      
     - name: Run tests
       run: 
-        python ./Dashboard/dashboard/manage.py test
+        python manage.py test
