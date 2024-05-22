@@ -77,9 +77,7 @@ jobs:
           FOREIGN KEY (tag_id) REFERENCES tags(id)
         );"
         
-    - name : Change workdir
-      run: cd Dashboard/dashboard
-      
     - name: Run tests
       run: 
+        cd Dashboard/dashboard
         python manage.py test
