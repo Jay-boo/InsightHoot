@@ -75,18 +75,26 @@ jobs:
       # - name: Setup Kafka
       #   run: |
       #     kubectl apply -f  kind/k8s_config/kafka
+
+      - name: Helm install bitnami
+        run: |
+          kubectl get events 
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm search repo bitnami
+          helm repo update
+          helm install bitnami/mysql --generate-name
+          kubectl get events 
       - name: Helm install
         run: |
           helm repo add spark-operator https://kubeflow.github.io/spark-operator
+          helm search repo spark-operator
+          helm repo update
           kubectl get events 
           helm install my-release spark-operator/spark-operator --namespace spark-operator --create-namespace --set webhook.enable=true
           kubectl get events 
 
 
 
-      - name: Spark Operator
-        run: |
-          kubectl apply -f  kind/k8s_config/spark-pi.yaml
 
       # - name: Get logs kafka-connect
       #   run: |
@@ -97,21 +105,3 @@ jobs:
       #   run: |
       #     kubectl logs -n spark-operator spark-pi-driver
 
-      - name: Check Spark Application status
-        run: |
-          while true; do
-            APP_OUTPUT=$( kubectl get sparkapplications.sparkoperator.k8s.io -n spark-operator spark-pi)
-            STATUS=$(echo "$APP_OUTPUT" | grep "spark-pi" | awk '{print $2}')
-            echo $STATUS
-
-            if [ "$STATUS" == "FAILED" ]; then
-              echo "Spark Application Failed"
-              exit 1
-            elif [ "$STATUS" == "COMPLETED" ]; then
-              echo "Spark Application Completed"
-              exit 0
-            else
-              echo "Spark Application still running, Waiting ..."
-              sleep 10
-            fi
-          done
