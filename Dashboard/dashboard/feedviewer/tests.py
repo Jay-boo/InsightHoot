@@ -3,8 +3,9 @@ import unittest
 from django.test import TestCase
 from django.test import Client
 from django.contrib.auth.models import User
+from django.urls import reverse
 
-class SimpleTest(TestCase):
+class LoginTest(TestCase):
     databases = {'default'}
 
     def setUp(self) -> None:
