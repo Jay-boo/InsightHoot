@@ -2,6 +2,7 @@ import models.db.{MessageComponent, TagComponent, TopicComponent}
 import models.entities.{Message, TagTheme, Topic}
 import models.repositories.{MessageRepository, TagRepository, TopicRepository}
 
+import java.sql.Timestamp
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Try}
@@ -13,7 +14,7 @@ class MessageRepositorySpec extends munit.FunSuite {
     TestDatabaseConfig,
     topicRepository = topicRepository
   )
-  val msg:Message=Message(None,"Lorem Ipsum",1)
+  val msg:Message=Message(None,Timestamp.valueOf("2024-05-20 20:49:52"),"Lorem Ipsum","titleMessage","link1",1)
 
   override def beforeEach(context: BeforeEach): Unit = {
     Await.result(messageRepository.beforeEach(),10.seconds)
@@ -64,13 +65,13 @@ class MessageRepositorySpec extends munit.FunSuite {
 
 
   test("Delete should delete an existing Message"){
-    val msg:Message=Message(None,"Lorem Ipsum",1)
+    val msg:Message=Message(None,Timestamp.valueOf("2024-05-20 20:49:52"),"Lorem Ipsum","Title1","link1",1)
     println("-------Inserting Tag and Topic value------")
     Await.result(messageRepository.topicRepository.add(Topic(None,"titleTopic1","UrlTopic1")),10.seconds)
     Await.result(messageRepository.topicRepository.all(3,0),10.seconds).foreach(println)
     println("------------------------------------------")
     val insertedId:Int=Await.result(messageRepository.add(msg), 10.seconds)
-    val insertedIdSecond:Int=Await.result(messageRepository.add(Message(None,"Lorem Ipsum2",1)), 10.seconds)
+    val insertedIdSecond:Int=Await.result(messageRepository.add(Message(None,Timestamp.valueOf("2024-05-20 20:49:52"),"Lorem Ipsum2","title2","link2",1)), 10.seconds)
     val deleteResult:Int=Await.result(messageRepository.deleteById(insertedId),10.seconds)
     assertEquals(deleteResult,1)
     val deletedRecord:Option[Message]=Await.result(
