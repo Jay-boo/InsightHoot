@@ -78,6 +78,6 @@ jobs:
         );"
         
     - name: Run tests
-      run: 
+      run: | 
         cd Dashboard/dashboard
         python manage.py test
