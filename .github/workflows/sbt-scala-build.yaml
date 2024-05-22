@@ -64,13 +64,6 @@ jobs:
       #     name: InsightHootJar
       #     path: ./jars
 
-      - name: Download Kafka source jar
-        run: | 
-          wget https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.12/3.5.1/spark-sql-kafka-0-10_2.12-3.5.1.jar
-          mv spark-sql-kafka-0-10_2.12-3.5.1.jar ./jars
-          wget https://s3.amazonaws.com/auxdata.johnsnowlabs.com/public/models/pos_anc_en_3.0.0_3.0_1614962126490.zip
-          unzip pos_anc_en_3.0.0_3.0_1614962126490.zip -d ./jars/pos_anc_en
-
 
       - name : See uploaded artifacts 
         run: ls ./jars
