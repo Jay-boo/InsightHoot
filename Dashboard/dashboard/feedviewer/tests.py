@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 class LoginTest(TestCase):
-    databases = {'default'}
+    databases = {'default', 'feeds'}
 
     def setUp(self) -> None:
         self.client = Client()
