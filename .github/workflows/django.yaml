@@ -1,0 +1,83 @@
+name: Dashboard
+
+on:
+  pull_request:
+    branches: 
+      - feature-dashboard
+  push:
+    branches:
+      - master
+      - stable
+    
+
+jobs:
+  django-test-run:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_USER: myuser
+          POSTGRES_PASSWORD: mypassword
+          POSTGRES_DB: mydatabase
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r ./Dashboard/requirements.txt
+
+    - name: Wait for PostgreSQL to be ready
+      run: |
+        until pg_isready -h localhost -p 5432 -U myuser; do
+          echo "$(date) - waiting for postgres database to start"
+          sleep 1
+        done
+
+    - name: Create tables and insert data
+      env:
+        PGPASSWORD: mypassword
+      run: |
+        psql -h localhost -U myuser -d mydatabase -c "
+        CREATE TABLE IF NOT EXISTS topics (
+          id SERIAL PRIMARY KEY,
+          title VARCHAR(255) NOT NULL
+        );"
+        psql -h localhost -U myuser -d mydatabase -c "
+        CREATE TABLE IF NOT EXISTS tags (
+          id SERIAL PRIMARY KEY,
+          label VARCHAR(255) NOT NULL,
+          theme VARCHAR(255) NOT NULL
+        );"
+        psql -h localhost -U myuser -d mydatabase -c "
+        CREATE TABLE messages (
+          id SERIAL PRIMARY KEY,
+          content TEXT NOT NULL,
+          topic_id INT NOT NULL,
+          tag_id INT NOT NULL,
+          FOREIGN KEY (topic_id) REFERENCES topics(id),
+          FOREIGN KEY (tag_id) REFERENCES tags(id)
+        );"
+        
+    - name: Run tests
+      run: | 
+        cd Dashboard/dashboard
+        python manage.py test
