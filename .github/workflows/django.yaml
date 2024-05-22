@@ -2,7 +2,8 @@ name: Dashboard
 
 on:
   pull_request:
-    branches: feature-dashboard-**
+    branches: 
+      - feature-dashboard-**
   push:
     branches:
       - master
