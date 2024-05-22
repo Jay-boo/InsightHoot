@@ -9,7 +9,6 @@ class MessagesTestCase(TestCase):
 
 
     def setUp(self):
-        call_command('migrate', database='feeds', run_syncdb=True)
         Topics.objects.using("feeds").create(title="testtopic")
         Tags.objects.using("feeds").create(label="testlabel", theme="testtheme")
         
