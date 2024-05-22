@@ -68,6 +68,12 @@ class TagRepositorySpec extends munit.FunSuite {
       case None =>
     }
   }
+  test("Get Id should return the id of  existing Tag"){
+    val initialTagTheme = TagTheme(None, "Tag1", "AI")
+    Await.result(tagRepository.add(initialTagTheme), 10.seconds)
+    val tagId:Int=Await.result(tagRepository.getId(initialTagTheme.label,initialTagTheme.theme),10.seconds).getOrElse(fail("Expected to find Tag"))
+    assertEquals(tagId,1)
+  }
 
 
 }

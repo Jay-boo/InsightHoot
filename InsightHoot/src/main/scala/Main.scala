@@ -104,7 +104,12 @@ object Main extends SparkMachine with Logging {
     val relevantTokens: DataFrame = getRelevantTokens(model, titleDF.select("title","feed_title", "date", "feed_url", "link","content"))
     relevantTokens.show(4)
     val taggedDF:DataFrame=Tagger.tagDF(relevantTokens,spark)
-    taggedDF.show(5,truncate=false)
+    val taggedCleanDF=taggedDF.withColumn("content",when(col("content").isNull,"").otherwise(col("content")))
+    taggedCleanDF.show(5,truncate=false)
+    logger.info(s"Adding Daily Messages to PSQL DB \n Number of today messages:${taggedDF.count()}")
+    DataBaseManager.afterEach()
+    DataBaseManager.beforeEach()
+    DataBaseManager.addMessages(taggedCleanDF)
   }
 
 }
