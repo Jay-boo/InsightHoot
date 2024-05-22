@@ -7,46 +7,47 @@ on:
     branches:
       - master
       - stable
+      - cicd
 
 
 jobs:
-  sbt-build-jar:
-    name: Build and Test
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        scala: [2.12.18]
-        java: [temurin@8]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout current branch (full)
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Java (temurin@8)
-        if: matrix.java == 'temurin@8'
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 8
-          cache: sbt
-
-      - name: Test project
-        run: |
-          cd InsightHoot
-          sbt '++ ${{ matrix.scala }}' test
-
-      - name: Build project jar
-        run: |
-          cd InsightHoot
-          sbt '++ ${{ matrix.scala }}' assembly
-
-      - name: Upload Jar Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: InsightHootJar
-          path: ./jars/InsightHootKafka-3.5.1-8-2.12.jar
+#   sbt-build-jar:
+#     name: Build and Test
+#     strategy:
+#       matrix:
+#         os: [ubuntu-latest]
+#         scala: [2.12.18]
+#         java: [temurin@8]
+#     runs-on: ${{ matrix.os }}
+#     steps:
+#       - name: Checkout current branch (full)
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
+#
+#       - name: Setup Java (temurin@8)
+#         if: matrix.java == 'temurin@8'
+#         uses: actions/setup-java@v4
+#         with:
+#           distribution: temurin
+#           java-version: 8
+#           cache: sbt
+#
+#       - name: Test project
+#         run: |
+#           cd InsightHoot
+#           sbt '++ ${{ matrix.scala }}' test
+#
+#       - name: Build project jar
+#         run: |
+#           cd InsightHoot
+#           sbt '++ ${{ matrix.scala }}' assembly
+#
+#       - name: Upload Jar Artifact
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: InsightHootJar
+#           path: ./jars/InsightHootKafka-3.5.1-8-2.12.jar
 
 
   create-cluster:
@@ -59,10 +60,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: InsightHootJar
-          path: ./jars
+      # - uses: actions/download-artifact@v4
+      #   with:
+      #     name: InsightHootJar
+      #     path: ./jars
 
       - name: Download Kafka source jar
         run: | 
@@ -81,20 +82,21 @@ jobs:
         with:
           config: ./kind/k8s_config/kind-config.yaml
 
-      - name: Setup Kafka
-        run: |
-          kubectl apply -f  kind/k8s_config/kafka
+      # - name: Setup Kafka
+      #   run: |
+      #     kubectl apply -f  kind/k8s_config/kafka
       - name: Helm install
         run: |
           helm repo add spark-operator https://kubeflow.github.io/spark-operator
+          kubectl get events 
           helm install my-release spark-operator/spark-operator --namespace spark-operator --create-namespace --set webhook.enable=true
-          sleep 70
+          kubectl get events 
+
 
 
       - name: Spark Operator
         run: |
           kubectl apply -f  kind/k8s_config/spark-pi.yaml
-          sleep 30
 
       # - name: Get logs kafka-connect
       #   run: |
