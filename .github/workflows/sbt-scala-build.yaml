@@ -52,7 +52,6 @@ jobs:
 
   create-cluster:
     runs-on: ubuntu-latest
-    needs : [sbt-build-jar]
     steps:
 
       - name: Checkout current branch (full)
