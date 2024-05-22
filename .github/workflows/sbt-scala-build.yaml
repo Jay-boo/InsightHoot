@@ -65,8 +65,6 @@ jobs:
       #     path: ./jars
 
 
-      - name : See uploaded artifacts 
-        run: ls ./jars
 
 
       - name: Create kind cluster
