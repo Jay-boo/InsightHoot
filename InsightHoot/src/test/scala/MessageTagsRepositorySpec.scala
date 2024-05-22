@@ -4,6 +4,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 import models.entities.{Message, MessageTag, TagTheme, Topic}
 
+import java.sql.Timestamp
 import scala.util.{Failure, Success, Try}
 
 class MessageTagsRepositorySpec extends munit.FunSuite {
@@ -60,7 +61,7 @@ class MessageTagsRepositorySpec extends munit.FunSuite {
     val topic:Topic=Topic(None,"topic1","url1")
     val tagId:Int=Await.result(tagRepository.add(tag),10.seconds)
     val topicId:Int=Await.result(topicRepository.add(topic),10.seconds)
-    val msg:Message=Message(None,"Lorem Ipsum",topic_id = topicId)
+    val msg:Message=Message(None,Timestamp.valueOf("2024-05-20 20:49:52"),"Lorem Ipsum","title","link1",topic_id = topicId)
     val msgId=Await.result(messageRepository.add(msg),10.seconds)
     val msg_tags:MessageTag=MessageTag(msgId, tagId)
     val insertJob:Int=Await.result(messageTagsRepository.add(msg_tags),10.seconds)

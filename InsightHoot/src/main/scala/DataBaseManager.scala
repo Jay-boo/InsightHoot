@@ -53,23 +53,7 @@ object DataBaseManager  extends SparkMachine  with Logging{
   }
 
 
-//  def addTopics(df_topics: DataFrame): DataFrame = {
-//    val df: DataFrame = df_topics.map {
-//      case Row(title: String, tokens: Seq[String], tags: Seq[Map[String, String]]) => {
-//        println("foreach ----", title)
-//        val topic: Topic = Topic(None, title, s"tmpUrl_$title")
-//        val insertedTopicId: Try[Int] = Try(Await.result(topicRepository.add(topic), 5.seconds))
-//        println(insertedTopicId)
-//
-//        insertedTopicId match {
-//          case Success(v) => (title, tokens, tags, Some(v))
-//          case Failure(e)=> (title,tokens,tags,None)
-//        }
-//      }
-//    }.toDF("title", "tokens", "tags", "topic_id")
-//    df.show()
-//    df
-//  }
+
 
   def addAllDefinedTags():Unit={
     val tagThemeDB:Seq[TagTheme]=Await.result(tagRepository.all(4000,0),10.seconds)
@@ -121,7 +105,7 @@ object DataBaseManager  extends SparkMachine  with Logging{
           }
         }
         val topicId=topicIdOption.getOrElse(throw  new NoSuchElementException("topicId not found"))
-        val message:Message=Message(None,content,topicId)
+        val message:Message=Message(None,date,content,title,link,topicId)
         val messageIdOption:Option[Int]=Try(Await.result(messageRepository.add(message),10.seconds)) match {
           case Success(v)=>Some(v)
           case Failure(e)=>None
