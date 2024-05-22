@@ -81,11 +81,11 @@ jobs:
           kubectl version
       - name: Helm install
         run: |
-          helm repo add spark-operator https://kubeflow.github.io/spark-operator
+          helm repo add spark-operator https://github.com/kubeflow/spark-operator/releases/tag/spark-operator-chart-1.2.15
           helm search repo spark-operator
           helm repo update
           helm list
-          helm install my-release spark-operator/spark-operator --namespace spark-operator --create-namespace   --set webhook.enable=true --set image.tag=v1beta2-1.3.3-3.1.1 --debug
+          helm install my-release spark-operator/spark-operator --namespace spark-operator --create-namespace   --set webhook.enable=true  --debug
 
 
 
