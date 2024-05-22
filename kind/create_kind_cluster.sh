@@ -27,6 +27,7 @@ echo "Install helm Chart Spark operator"
 echo "Pass"
 helm repo add spark-operator https://kubeflow.github.io/spark-operator
 helm install my-release spark-operator/spark-operator --version 1.2.7 --namespace spark-operator --create-namespace --set webhook.enable=true --debug
+:qa
 
 
 
