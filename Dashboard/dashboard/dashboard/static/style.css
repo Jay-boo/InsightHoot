@@ -234,6 +234,11 @@ select {
 /* =========
     Classes
    ========= */
+.chart-container {
+    width: 80%;
+    max-width: 600px;
+    margin: auto;
+}
 
 .view-width {
     width: 70%;

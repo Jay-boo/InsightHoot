@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 {% load static %}
 <html lang="en">
 <head>
@@ -29,7 +30,7 @@
         </li>
        <li class="navbar-item flexbox-left">
        <form class="navbar-item flexbox-left" id="home-form" action="{% url 'home' %}" method="GET">
-        {% csrf_token %}
+        
         <!-- CSRF token field if required by your backend -->
         <!-- <input type="hidden" name="_token" value="your_csrf_token_here"> -->
         <a href="#" onclick="document.getElementById('home-form').submit();" class="navbar-item-inner flexbox-left">
@@ -43,7 +44,7 @@
         {% if user.is_anonymous  %}
         <li class="navbar-item flexbox-left">
       <form class="navbar-item flexbox-left" id="login-form" action="/accounts/microsoft/login/?process=login" method="GET">
-        {% csrf_token %}
+        
         <!-- CSRF token field if required by your backend -->
         <!-- <input type="hidden" name="_token" value="your_csrf_token_here"> -->
         <a href="#" onclick="document.getElementById('login-form').submit();" class="navbar-item-inner flexbox-left">
@@ -59,7 +60,7 @@
         {% if user.is_authenticated  %}
         <li class="navbar-item flexbox-left">
       <form class="navbar-item flexbox-left" id="logout-form" action="{% url 'logout' %}" method="POST">
-        {% csrf_token %}
+        
         <!-- CSRF token field if required by your backend -->
         <!-- <input type="hidden" name="_token" value="your_csrf_token_here"> -->
         <a href="#" onclick="document.getElementById('logout-form').submit();" class="navbar-item-inner flexbox-left">
@@ -72,8 +73,7 @@
         </li>
         <li class="navbar-item flexbox-left">
       <form class="navbar-item flexbox-left" id="feedviewer-form" action="{% url 'feedviewer:topics' %}" method="GET">
-        {% csrf_token %}
-        <!-- CSRF token field if required by your backend -->
+                <!-- CSRF token field if required by your backend -->
         <!-- <input type="hidden" name="_token" value="your_csrf_token_here"> -->
         <a href="#" onclick="document.getElementById('feedviewer-form').submit();" class="navbar-item-inner flexbox-left">
           <div class="navbar-item-inner-icon-wrapper flexbox">
@@ -83,8 +83,18 @@
         </a>
       </form>
         </li>
-
-        {% endif %}
+        <li class="navbar-item flexbox-left">
+      <form class="navbar-item flexbox-left" id="graphs-form" action="{% url 'graphs:home' %}" method="GET">
+                <!-- CSRF token field if required by your backend -->
+        <!-- <input type="hidden" name="_token" value="your_csrf_token_here"> -->
+        <a href="#" onclick="document.getElementById('graphs-form').submit();" class="navbar-item-inner flexbox-left">
+          <div class="navbar-item-inner-icon-wrapper flexbox">
+             <i class="fas fa-chart-pie"></i><!-- Use appropriate icon for logout -->
+          </div>
+          <span class="link-text">Dashboard</span>
+        </a>
+      </form>
+        </li>        {% endif %}
       </ul>
 </nav>
     </header>
