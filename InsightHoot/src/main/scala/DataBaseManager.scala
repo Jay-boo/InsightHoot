@@ -138,7 +138,6 @@ object DataBaseManagerLocal  extends SparkMachine  with Logging{
 
       case _=>{println("Row not matched :",row)}
     }
-
   }
 }
 

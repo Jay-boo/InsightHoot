@@ -111,15 +111,17 @@ object Main extends SparkMachine with Logging {
     logger.info(s"Adding Daily Messages to PSQL DB \n Number of today messages:${taggedDF.count()}")
 
 
-//    if (mode){
-//      DataBaseManagerRemote.afterEach()
-//      DataBaseManagerRemote.beforeEach()
-//      DataBaseManagerRemote.addMessages(taggedCleanDF)
-//    }else{
-//      DataBaseManagerLocal.afterEach()
-//      DataBaseManagerLocal.beforeEach()
-//      DataBaseManagerLocal.addMessages(taggedCleanDF)
-//    }
+    if (mode){
+      println("hellomode1")
+      DataBaseManagerRemote.afterEach()
+      DataBaseManagerRemote.beforeEach()
+      DataBaseManagerRemote.addMessages(taggedCleanDF)
+    }else{
+      println("hellomode2")
+      DataBaseManagerLocal.afterEach()
+      DataBaseManagerLocal.beforeEach()
+      DataBaseManagerLocal.addMessages(taggedCleanDF)
+    }
   }
 
 }

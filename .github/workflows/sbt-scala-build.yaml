@@ -48,6 +48,12 @@ jobs:
           name: InsightHootJar
           path: ./jars/InsightHootKafka-3.5.1-8-2.12.jar
 
+      - name: List dependencies
+        run: |
+          cd InsightHoot
+          sbt '++ ${{ matrix.scala }}' libraryDependencies
+        
+
 
   create-cluster:
     runs-on: ubuntu-latest
