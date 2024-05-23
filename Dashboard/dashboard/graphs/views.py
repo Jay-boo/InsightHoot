@@ -9,7 +9,7 @@ def home(request):
     return render(request, 'graphs/home.html')
 
 def messages_by_topic(request):
-    data = Messages.objects.using("feeds").values('topic__title') \
+    data = Messages.objects.values('topic__title') \
         .annotate(count_items=Count('id')) \
         .order_by('topic__title')
     return JsonResponse(list(data), safe=False)
