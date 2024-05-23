@@ -4,7 +4,7 @@ import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.JdbcProfile
 
 trait DatabaseConfig{
-  @transient val profile:JdbcProfile
+  val profile:JdbcProfile
   val db:Database
 }
 
