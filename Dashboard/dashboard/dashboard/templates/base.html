@@ -99,12 +99,20 @@
 </nav>
     </header>
     <main id="main">
-      <div class="flexbox-col-left-ns">
-      {% block content %}
+      <div id="content-left-ns" class="flexbox-col-left-ns">
+      {% block content-left-ns %}
       {% endblock %}
       </div>
-      <div class="flexbox-col-start-left">
+      <div id="content-left" class="flexbox-col-left">
       {% block content-left %}
+      {% endblock %}
+      </div>
+      <div id="content-standard" class="flexbox">
+      {% block content-standard %}
+      {% endblock %}
+      </div>
+      <div id="content-right" class="flexbox-col-right">
+      {% block content-right %}
       {% endblock %}
       </div>
     </main>     

@@ -1,8 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
-{% block content %}
-<script src="http://d3js.org/d3.v3.js"></script>
-<div class="chart-container"><script src="{% static 'js/messages_by_topic.js' %}"></script></div>
 
+{% block content-standard%}
+<div id="content-right-dash" class="flexbox-col-right">
+<script src="http://d3js.org/d3.v4.js"></script>
+<script src="{% static 'js/messages_by_tags.js' %}"></script>
+</div>
 
-{% endblock %}
+<div id="content-left-dash" class="flexbox-col-left">
+<script src="http://d3js.org/d3.v4.js"></script>
+<script src="{% static 'js/messages_by_topic.js' %}"></script>
+</div>
+{% endblock content-standard %}
