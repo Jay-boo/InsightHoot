@@ -4,6 +4,7 @@ import org.apache.spark.sql.types._
 import com.johnsnowlabs.nlp.annotators.Tokenizer
 import com.johnsnowlabs.nlp.annotators.pos.perceptron.PerceptronModel
 import com.johnsnowlabs.nlp.base.DocumentAssembler
+import models.{LocalDatabaseConfig, MainDatabaseConfig}
 import org.apache.logging.log4j.scala.Logging
 import org.apache.spark.ml.{Pipeline, PipelineModel};
 
@@ -61,6 +62,7 @@ object Main extends SparkMachine with Logging {
 
 
 
+
   def main(args: Array[String]): Unit = {
     if (args.length != 1 || (args(0) != "local" && args(0) != "k8s")) {
       logger.error("Usage: Main <mode>")
@@ -107,9 +109,17 @@ object Main extends SparkMachine with Logging {
     val taggedCleanDF=taggedDF.withColumn("content",when(col("content").isNull,"").otherwise(col("content")))
     taggedCleanDF.show(5,truncate=false)
     logger.info(s"Adding Daily Messages to PSQL DB \n Number of today messages:${taggedDF.count()}")
-    DataBaseManager.afterEach()
-    DataBaseManager.beforeEach()
-    DataBaseManager.addMessages(taggedCleanDF)
+
+
+    if (mode){
+      DataBaseManagerRemote.afterEach()
+      DataBaseManagerRemote.beforeEach()
+      DataBaseManagerRemote.addMessages(taggedCleanDF)
+    }else{
+      DataBaseManagerLocal.afterEach()
+      DataBaseManagerLocal.beforeEach()
+      DataBaseManagerLocal.addMessages(taggedCleanDF)
+    }
   }
 
 }

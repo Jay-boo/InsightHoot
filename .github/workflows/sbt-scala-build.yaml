@@ -7,6 +7,7 @@ on:
     branches:
       - master
       - stable
+      - subfeature-k8s_+_psql_integration
 
 
 jobs:
@@ -84,6 +85,9 @@ jobs:
       - name: Setup Kafka
         run: |
           kubectl apply -f  kind/k8s_config/kafka
+      - name: Setup Psql
+        run: |
+          kubectl apply -f  kind/k8s_config/psql
       - name: Helm install
         run: |
           helm repo add spark-operator https://kubeflow.github.io/spark-operator
@@ -94,6 +98,7 @@ jobs:
       - name: Spark Operator
         run: |
           kubectl apply -f  kind/k8s_config/spark-pi.yaml
+          
           sleep 30
 
       # - name: Get logs kafka-connect
