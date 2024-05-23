@@ -9,8 +9,8 @@ class IndexView(LoginRequiredMixin,generic.ListView):
     context_object_name = "latest_message_list"
 
     def get_queryset(self):
-        topic_title = self.kwargs['topic_title']
-        return Messages.objects.filter(topic__title=topic_title)
+        topic_name = self.kwargs['topic_name']
+        return Messages.objects.filter(topic__name=topic_name)
 
 class DetailView(LoginRequiredMixin, generic.DetailView):
     model = Messages
@@ -21,4 +21,4 @@ class TopicView(LoginRequiredMixin,generic.ListView):
     context_object_name = "topics_list"
 
     def get_queryset(self):
-        return Topics.objects.order_by("title")
+        return Topics.objects.order_by("name")
