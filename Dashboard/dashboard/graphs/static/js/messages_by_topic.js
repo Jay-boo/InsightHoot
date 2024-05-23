@@ -26,11 +26,11 @@ d3.json("/graphs/messages_by_topic/", function(error, data) {
   if (error) throw error;
 
   data.forEach(function(d) {
-    d.topic__title = d.topic__title;
+    d.topic__name = d.topic__name;
     d.count_items = +d.count_items;
   });
 
-  x.domain(data.map(function(d) { return d.topic__title; }));
+  x.domain(data.map(function(d) { return d.topic__name; }));
   y.domain([0, d3.max(data, function(d) { return d.count_items; })]);
 
   svg.append("g")
@@ -52,7 +52,7 @@ d3.json("/graphs/messages_by_topic/", function(error, data) {
       .data(data)
     .enter().append("rect")
       .attr("class", "bar")
-      .attr("x", function(d) { return x(d.topic__title); })
+      .attr("x", function(d) { return x(d.topic__name); })
       .attr("width", x.rangeBand())
       .attr("y", function(d) { return y(d.count_items); })
       .attr("height", function(d) { return height - y(d.count_items); });
