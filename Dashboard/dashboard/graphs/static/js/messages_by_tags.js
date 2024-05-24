@@ -6,13 +6,14 @@ var color = d3.scaleOrdinal(d3.schemeCategory10);
 
 var arc = d3.arc()
     .outerRadius(radius - 10)
-    .innerRadius(0);
+    .innerRadius(73);
 
 var labelArc = d3.arc()
     .outerRadius(radius - 40)
     .innerRadius(radius - 40);
 
 var pie = d3.pie()
+    .padAngle(0.042)
     .sort(null)
     .value(function(d) { return d.count_items; });
 

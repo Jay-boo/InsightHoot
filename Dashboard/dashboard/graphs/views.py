@@ -18,5 +18,5 @@ def messages_by_topic(request):
 
 @login_required
 def messages_by_tag(request):
-    data = MessageTags.objects.values('tagid__label').annotate(count_items=Count('messageid')).order_by('tagid__label')
+    data = MessageTags.objects.values('tagid__label', 'tagid__theme').annotate(count_items=Count('messageid')).order_by('tagid__label')
     return JsonResponse(list(data), safe=False)
