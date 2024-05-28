@@ -3,12 +3,15 @@
 
 {% block content-standard%}
 <div id="content-right-dash" class="flexbox-col-right">
-<script src="http://d3js.org/d3.v4.js"></script>
-<script src="{% static 'js/messages_by_tags.js' %}"></script>
+<canvas class="flexbox-col-right" id="myPieChart" width="400" height="400"></canvas>
+<script src="{% static 'js/app.js' %}"></script>
+
+<!-- <script src="http://d3js.org/d3.v5.js"></script> -->
+<!-- <script src="{% static 'js/messages_piechart_try.js' %}"></script> -->
 </div>
 
-<div id="content-left-dash" class="flexbox-col-left">
-<script src="http://d3js.org/d3.v4.js"></script>
-<script src="{% static 'js/messages_by_topic.js' %}"></script>
-</div>
+<!-- <div id="content-left-dash" class="flexbox-col-left"> -->
+<!-- <script src="http://d3js.org/d3.v4.js" charset="utf-8""></script> -->
+<!-- <script src="{% static 'js/messages_by_topic.js' %}" defer></script> -->
+<!-- </div> -->
 {% endblock content-standard %}
