@@ -119,9 +119,13 @@ jobs:
       #     kubectl logs services/kafka-connect 
       #     
       #
-      # - name: Get logs spark application driver
-      #   run: |
-      #     kubectl logs -n spark-operator spark-pi-driver
+      - name: Get logs spark application driver
+        run: |
+          kubectl logs -n spark-operator spark-pi-driver
+      - name: Get logs spark application driver
+        run: |
+          sleep 50
+          kubectl logs -n spark-operator spark-pi-driver
 
       - name: Check Spark Application status
         run: |
