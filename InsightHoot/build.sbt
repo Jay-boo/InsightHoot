@@ -20,6 +20,12 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-nop" % "1.6.4",
 )
 
+
+
+assemblyShadeRules in assembly := Seq(
+  ShadeRule.rename("com.zaxxer.hikari.**" -> "shaded.hikari.@1").inAll
+)
+
 libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
 libraryDependencies += "com.h2database" % "h2" % "1.4.200" % Test
 libraryDependencies += "org.apache.logging.log4j" % "log4j-core" % "2.19.0" % Runtime

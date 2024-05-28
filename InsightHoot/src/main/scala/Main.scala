@@ -12,7 +12,6 @@ import org.apache.spark.ml.{Pipeline, PipelineModel};
 
 object Main extends SparkMachine with Logging {
   import spark.implicits._
-  DependencyVersionChecker.run()
 
 
   def getPayload(df:DataFrame): DataFrame = {
