@@ -74,6 +74,14 @@ jobs:
         run: | 
           wget https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.12/3.5.1/spark-sql-kafka-0-10_2.12-3.5.1.jar
           mv spark-sql-kafka-0-10_2.12-3.5.1.jar ./jars
+
+
+          wget https://repo1.maven.org/maven2/com/zaxxer/HikariCP/3.2.0/HikariCP-3.2.0.jar
+          mv HikariCP-3.2.0.jar ./jars
+
+          wget https://repo1.maven.org/maven2/org/postgresql/postgresql/42.3.5/postgresql-42.3.5.jar
+          mv postgresql-42.3.5.jar ./jars
+
           wget https://s3.amazonaws.com/auxdata.johnsnowlabs.com/public/models/pos_anc_en_3.0.0_3.0_1614962126490.zip
           unzip pos_anc_en_3.0.0_3.0_1614962126490.zip -d ./jars/pos_anc_en
 

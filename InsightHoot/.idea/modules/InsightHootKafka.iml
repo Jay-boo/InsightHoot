@@ -257,7 +257,7 @@
     <orderEntry type="library" name="sbt: org.json4s:json4s-scalap_2.12:3.7.0-M11:jar" level="project" />
     <orderEntry type="library" name="sbt: org.lz4:lz4-java:1.8.0:jar" level="project" />
     <orderEntry type="library" name="sbt: org.objenesis:objenesis:2.5.1:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.postgresql:postgresql:42.3.4:jar" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="sbt: org.postgresql:postgresql:42.3.4:jar" level="project" />
     <orderEntry type="library" name="sbt: org.projectlombok:lombok:1.16.8:jar" level="project" />
     <orderEntry type="library" name="sbt: org.reactivestreams:reactive-streams:1.0.2:jar" level="project" />
     <orderEntry type="library" name="sbt: org.roaringbitmap:RoaringBitmap:0.9.45:jar" level="project" />

@@ -113,12 +113,10 @@ object Main extends SparkMachine with Logging {
 
 
     if (mode){
-      println("hellomode1")
       DataBaseManagerRemote.afterEach()
       DataBaseManagerRemote.beforeEach()
       DataBaseManagerRemote.addMessages(taggedCleanDF)
     }else{
-      println("hellomode2")
       DataBaseManagerLocal.afterEach()
       DataBaseManagerLocal.beforeEach()
       DataBaseManagerLocal.addMessages(taggedCleanDF)
