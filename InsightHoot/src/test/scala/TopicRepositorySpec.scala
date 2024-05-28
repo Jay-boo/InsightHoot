@@ -3,6 +3,7 @@ import models.repositories.TopicRepository
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
+import scala.util.{Failure, Success, Try}
 
 class TopicRepositorySpec  extends munit.FunSuite {
   val topicRepository=new TopicRepository(TestDatabaseConfig)
@@ -22,7 +23,7 @@ class TopicRepositorySpec  extends munit.FunSuite {
   }
 
   test ("add should insert a TagTheme"){
-    val tagTheme:Topic=Topic(None,"Tag1","AI")
+    val tagTheme:Topic=Topic(None,"topic1","url1")
     val addResult:Int=Await.result(topicRepository.add(tagTheme),10.seconds)
     assertEquals(addResult,1)
     val addedRow: Option[Topic]=Await.result(topicRepository.getById(1),10.seconds)
@@ -31,8 +32,18 @@ class TopicRepositorySpec  extends munit.FunSuite {
       case None => fail("No record found with id == 1 after insert Tag ")
     }
     println("info :",addedRow)
-    val addResultSecond:Int=Await.result(topicRepository.add(tagTheme),10.seconds)
+    val addResultSecond:Int=Await.result(topicRepository.add(Topic(None,"topic1","url2")),10.seconds)
     assertEquals(addResultSecond,2)
+  }
+  test ("add should not insert a Topic with similar Url"){
+    val topic:Topic=Topic(None,"topic1","url1")
+    val topic2:Topic=Topic(None,"topic2","url1")
+    val addResult:Int=Await.result(topicRepository.add(topic),10.seconds)
+    val addResultSecond:Try[Int]=Try(Await.result(topicRepository.add(topic2),10.seconds))
+    addResultSecond match {
+      case Success(value)=>fail("Expected to topic with similar url not added")
+      case Failure(exception)=>
+    }
   }
 
   test( "Update should modify an existing Topic"){
@@ -43,7 +54,7 @@ class TopicRepositorySpec  extends munit.FunSuite {
     assertEquals(updateResult, 1)
     val retrievedUpdatedTopic:Option[Topic] = Await.result(topicRepository.getById(insertedId), 10.seconds)
     assertEquals(retrievedUpdatedTopic.map(_.url), Some(initialTopic.url))
-    assertEquals(retrievedUpdatedTopic.map(_.title), Some(updatedTopic.title))
+    assertEquals(retrievedUpdatedTopic.map(_.name), Some(updatedTopic.name))
   }
   test("Delete should delete an existing Tag"){
     val initialTopic = Topic(None, "Title1", "url1")

@@ -48,6 +48,12 @@ jobs:
           name: InsightHootJar
           path: ./jars/InsightHootKafka-3.5.1-8-2.12.jar
 
+      - name: List dependencies
+        run: |
+          cd InsightHoot
+          sbt '++ ${{ matrix.scala }}' libraryDependencies
+        
+
 
   create-cluster:
     runs-on: ubuntu-latest
@@ -68,6 +74,14 @@ jobs:
         run: | 
           wget https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.12/3.5.1/spark-sql-kafka-0-10_2.12-3.5.1.jar
           mv spark-sql-kafka-0-10_2.12-3.5.1.jar ./jars
+
+
+          wget https://repo1.maven.org/maven2/com/zaxxer/HikariCP/3.2.0/HikariCP-3.2.0.jar
+          mv HikariCP-3.2.0.jar ./jars
+
+          wget https://repo1.maven.org/maven2/org/postgresql/postgresql/42.3.5/postgresql-42.3.5.jar
+          mv postgresql-42.3.5.jar ./jars
+
           wget https://s3.amazonaws.com/auxdata.johnsnowlabs.com/public/models/pos_anc_en_3.0.0_3.0_1614962126490.zip
           unzip pos_anc_en_3.0.0_3.0_1614962126490.zip -d ./jars/pos_anc_en
 
@@ -84,6 +98,9 @@ jobs:
       - name: Setup Kafka
         run: |
           kubectl apply -f  kind/k8s_config/kafka
+      - name: Setup Psql
+        run: |
+          kubectl apply -f  kind/k8s_config/psql
       - name: Helm install
         run: |
           helm repo add spark-operator https://kubeflow.github.io/spark-operator
@@ -94,6 +111,7 @@ jobs:
       - name: Spark Operator
         run: |
           kubectl apply -f  kind/k8s_config/spark-pi.yaml
+          
           sleep 30
 
       # - name: Get logs kafka-connect
@@ -101,9 +119,13 @@ jobs:
       #     kubectl logs services/kafka-connect 
       #     
       #
-      # - name: Get logs spark application driver
-      #   run: |
-      #     kubectl logs -n spark-operator spark-pi-driver
+      - name: Get logs spark application driver
+        run: |
+          kubectl logs -n spark-operator spark-pi-driver
+      - name: Get logs spark application driver
+        run: |
+          sleep 50
+          kubectl logs -n spark-operator spark-pi-driver
 
       - name: Check Spark Application status
         run: |

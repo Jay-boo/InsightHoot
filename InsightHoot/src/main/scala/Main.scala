@@ -4,6 +4,7 @@ import org.apache.spark.sql.types._
 import com.johnsnowlabs.nlp.annotators.Tokenizer
 import com.johnsnowlabs.nlp.annotators.pos.perceptron.PerceptronModel
 import com.johnsnowlabs.nlp.base.DocumentAssembler
+import models.{LocalDatabaseConfig, MainDatabaseConfig}
 import org.apache.logging.log4j.scala.Logging
 import org.apache.spark.ml.{Pipeline, PipelineModel};
 
@@ -11,6 +12,7 @@ import org.apache.spark.ml.{Pipeline, PipelineModel};
 
 object Main extends SparkMachine with Logging {
   import spark.implicits._
+
 
   def getPayload(df:DataFrame): DataFrame = {
     val schema = new StructType()
@@ -56,8 +58,9 @@ object Main extends SparkMachine with Logging {
     val pertinentDF=explodedDF.withColumn("token",$"explodedPosTagging.metadata")
       .filter($"explodedPosTagging.result".startsWith("NN"))
       .withColumn("token",expr("token['word']"))
-    pertinentDF.groupBy("title", "date", "feed_url", "link","content").agg(collect_list("token").as("relevant_tokens"))
+    pertinentDF.groupBy("title","feed_title", "date", "feed_url", "link","content").agg(collect_list("token").as("relevant_tokens"))
   }
+
 
 
 
@@ -82,7 +85,7 @@ object Main extends SparkMachine with Logging {
       .format("kafka")
       .options(kafkaParams)
       .load()
-    val titleDF=getPayload(df).select("title", "date", "feed_url", "link","content")
+    val titleDF=getPayload(df).select("title", "feed_title","date", "feed_url", "link","content")
     val documentAssembler= new DocumentAssembler()
       .setInputCol("title")
       .setOutputCol("document")
@@ -100,12 +103,24 @@ object Main extends SparkMachine with Logging {
 
     val pipeline_POS= new Pipeline()
       .setStages(Array(documentAssembler,tokenizer,posTagger))
-    val model=pipeline_POS.fit(titleDF.select("title", "date", "feed_url", "link","content"))
-    titleDF.show(4)
-    val relevantTokens: DataFrame = getRelevantTokens(model, titleDF.select("title", "date", "feed_url", "link","content"))
+    val model=pipeline_POS.fit(titleDF.select("title","feed_title", "date", "feed_url", "link","content"))
+    val relevantTokens: DataFrame = getRelevantTokens(model, titleDF.select("title","feed_title", "date", "feed_url", "link","content"))
     relevantTokens.show(4)
     val taggedDF:DataFrame=Tagger.tagDF(relevantTokens,spark)
-    taggedDF.show(5,truncate=false)
+    val taggedCleanDF=taggedDF.withColumn("content",when(col("content").isNull,"").otherwise(col("content")))
+    taggedCleanDF.show(5,truncate=false)
+    logger.info(s"Adding Daily Messages to PSQL DB \n Number of today messages:${taggedDF.count()}")
+
+
+    if (mode){
+      DataBaseManagerRemote.afterEach()
+      DataBaseManagerRemote.beforeEach()
+      DataBaseManagerRemote.addMessages(taggedCleanDF)
+    }else{
+      DataBaseManagerLocal.afterEach()
+      DataBaseManagerLocal.beforeEach()
+      DataBaseManagerLocal.addMessages(taggedCleanDF)
+    }
   }
 
 }

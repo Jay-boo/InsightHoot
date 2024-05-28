@@ -15,10 +15,16 @@ libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.9.1"
 libraryDependencies += "com.github.vickumar1981" %% "stringdistance" % "1.2.7"
 libraryDependencies ++= Seq(
   "com.typesafe.slick" %% "slick" % "3.3.3",
-  "org.postgresql" % "postgresql" % "42.3.4",
+  "org.postgresql" % "postgresql" % "42.3.4"% "provided",
   "com.typesafe.slick" %% "slick-hikaricp" % "3.3.3",
   "org.slf4j" % "slf4j-nop" % "1.6.4",
 )
+
+
+
+//assemblyShadeRules in assembly := Seq(
+//  ShadeRule.rename("com.zaxxer.hikari.**" -> "shaded.hikari.@1").inAll
+//)
 
 libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
 libraryDependencies += "com.h2database" % "h2" % "1.4.200" % Test
@@ -32,3 +38,7 @@ assemblyMergeStrategy in assembly := {
 
 assemblyOutputPath in assembly := file("../jars/InsightHootKafka-3.5.1-8-2.12.jar")
 Test / parallelExecution := false
+
+
+
+

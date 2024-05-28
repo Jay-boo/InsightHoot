@@ -5,6 +5,7 @@ import models.db.TagComponent
 import models.entities.TagTheme
 
 import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
 trait TagRepositoryComponent{
   def beforeEach():Future[Unit]
@@ -13,6 +14,7 @@ trait TagRepositoryComponent{
   def update(tagTheme: TagTheme):Future[Int]
   def deleteBy(tagId: Int):Future[Int]
   def getById(tagId:Int):Future[Option[TagTheme]]
+  def getId(label:String,theme:String):Future[Option[Int]]
   def all(limit:Int,offset:Int):Future[Seq[TagTheme]]
 }
 
@@ -39,6 +41,11 @@ class TagRepository(val databaseConfig: DatabaseConfig)  extends  TagRepositoryC
   override def getById(tagId: Int): Future[Option[TagTheme]] = {
     db.run(
       tagQuery.filter(_.id=== tagId).result.headOption
+    )
+  }
+  override def getId(label: String,theme:String): Future[Option[Int]] = {
+    db.run(
+      tagQuery.filter(x=>(x.label===label && x.theme===theme)).map(_.id).result.headOption
     )
   }
 

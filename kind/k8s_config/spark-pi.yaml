@@ -23,6 +23,9 @@ spec:
       - local:///tmp/jars/spark-sql-kafka-0-10_2.12-3.5.1.jar
   arguments:
     - k8s
+  sparkConf:
+    "spark.driver.extraClassPath": "local:///tmp/jars/*"
+
   driver:
     cores: 1
     coreLimit: "1200m"
