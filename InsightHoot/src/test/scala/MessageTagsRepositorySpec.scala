@@ -65,7 +65,6 @@ class MessageTagsRepositorySpec extends munit.FunSuite {
     val msgId=Await.result(messageRepository.add(msg),10.seconds)
     val msg_tags:MessageTag=MessageTag(msgId, tagId)
     val insertJob:Int=Await.result(messageTagsRepository.add(msg_tags),10.seconds)
-
   }
 
 }

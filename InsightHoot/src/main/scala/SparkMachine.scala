@@ -9,5 +9,4 @@ trait SparkMachine {
     .getOrCreate()
   val rootLogger=Logger.getRootLogger()
   rootLogger.setLevel(Level.INFO)
-
 }
