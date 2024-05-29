@@ -1,4 +1,5 @@
 let myPieChart = null;
+Chart.defaults.font.family = '"Poppins", sans-serif';
 Chart.defaults.elements.arc.borderWidth = 0;
 Chart.defaults.elements.arc.hoverOffset = 15;
 // Function to aggregate data by theme
@@ -22,23 +23,25 @@ function aggregateDataByTheme(data) {
 
 
 // Function to aggregate data by labels within a theme
-function aggregateDataByLabels(data) {
-    const themeCounts = {};
+function aggregateDataByLabels(data, theme) {
+    const labelCounts = {};
 
     data.forEach(item => {
         item.tags.forEach(tagItem => {
-            const theme = tagItem.tag.label;
-            if (theme in themeCounts) {
-                themeCounts[theme]++;
-            } else {
-                themeCounts[theme] = 1;
+            if (tagItem.tag.theme === theme) {
+                console.log(tagItem.tag.theme);
+                const label = tagItem.tag.label;
+                if (label in labelCounts) {
+                    labelCounts[label]++;
+                } else {
+                    labelCounts[label] = 1;
+                }
             }
         });
     });
 
-    return themeCounts;
+    return labelCounts;
 }
-
 // Function to render the pie chart using Chart.js
 function renderPieChart(data, theme = null) {
     let aggregatedData, chartTitle;
@@ -78,7 +81,7 @@ function renderPieChart(data, theme = null) {
                         return context.chart.data.labels[context.dataIndex];
                     },
                     font: {
-                        weight: 'bold',
+                        weight: 'normal',
                         size: 16
                     }
                 },
@@ -87,7 +90,6 @@ function renderPieChart(data, theme = null) {
                     text: chartTitle,
                     color: '#000000',
                     font: {
-                        family: "'Geneva','Tahoma','Verdana',sans-serif",
                         size: 18,
                         weight: 'normal'
                     }
@@ -99,9 +101,11 @@ function renderPieChart(data, theme = null) {
             onClick: (event, elements) => {
                 if (elements.length > 0) {
                     const chartElement = elements[0];
-                    const label = chartElement.element.$context.raw;
+                    const labelIndex = chartElement.index;
+                    console.log(chartElement);
+                    console.log(labels);
                     if (!theme) {
-                        renderPieChart(data, label);
+                        renderPieChart(data, labels[labelIndex]);
                     }
                 }
             }
