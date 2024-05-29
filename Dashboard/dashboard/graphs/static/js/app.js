@@ -42,6 +42,12 @@ function aggregateDataByLabels(data, theme) {
 
     return labelCounts;
 }
+
+function calculatePercentages(values) {
+    const total = values.reduce((sum, value) => sum + value, 0);
+    const percentages = values.map(value => (value / total) * 100);
+    return percentages;
+}
 // Function to render the pie chart using Chart.js
 function renderPieChart(data, theme = null) {
     let aggregatedData, chartTitle;
@@ -56,7 +62,7 @@ function renderPieChart(data, theme = null) {
 
     const labels = Object.keys(aggregatedData);
     const values = Object.values(aggregatedData);
-
+    const values_percent = calculatePercentages(values);
     const ctx = document.getElementById('myPieChart').getContext('2d');
 
     if (myPieChart) {
@@ -66,19 +72,48 @@ function renderPieChart(data, theme = null) {
     myPieChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: labels,
             datasets: [{
                 data: values,
                 backgroundColor: ['#845ec2', '#2c73d2', '#0081cf', '#0089ba', '#008e9b', '#008f7a'],
+                datalabels: {
+                  labels: {
+                    name: {
+                      align: 'top',
+                      font: {size: 14},
+                      formatter: function(value, ctx) {
+                        return labels[ctx.dataIndex];
+                      }
+                    },
+                    value: {
+                      align: 'bottom',
+                      borderColor: 'white',
+                      borderWidth: 2,
+                      borderRadius: 4,
+                      color: 'white',
+                      formatter: function(value, ctx) {
+                        const value_to_print = values_percent[ctx.dataIndex]
+                        return Math.round(value_to_print * 100) / 100 + " %";
+                      },
+                      padding: 4,
+                      offset: -5 
+                    }
+                  }
+                }
             }]
         },
         options: {
             responsive: true,
+            animation: {
+              animateScale: true
+            },
             plugins: {
                 datalabels: {
                     color: '#fff',
                     formatter: function(value, context) {
-                        return context.chart.data.labels[context.dataIndex];
+                        const datapoints = context.chart.data.datasets[0].data
+                        const total = datapoints.reduce((total, datapoint) => total + datapoint, 0)
+                        const percentage = value / total * 100
+                        return labels[context.dataIndex];
                     },
                     font: {
                         weight: 'normal',
