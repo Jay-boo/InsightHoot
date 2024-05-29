@@ -109,7 +109,7 @@ DATABASES = {
         'USER': 'myuser',
         'PASSWORD': 'mypassword',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': '5434',
         'TEST': {
             'NAME': 'test_feeds_db',
             'DEPENDENCIES': []
