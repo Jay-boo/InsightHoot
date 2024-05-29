@@ -106,6 +106,7 @@ function renderPieChart(data, theme = null) {
                     console.log(labels);
                     if (!theme) {
                         renderPieChart(data, labels[labelIndex]);
+                        document.getElementById('resetButton').style.display = 'block';
                     }
                 }
             }
@@ -115,6 +116,16 @@ function renderPieChart(data, theme = null) {
 
     return myPieChart;
 }
+
+document.getElementById('resetButton').addEventListener('click', () => {
+    fetch('/graphs/messages_with_tags/')
+        .then(response => response.json())
+        .then(data => {
+            renderPieChart(data);
+            document.getElementById('resetButton').style.display = 'none'; // Hide reset button
+        })
+        .catch(error => console.error('Error fetching data:', error));
+});
 
 // Fetch data from the endpoint and render the chart
 fetch('/graphs/messages_with_tags/')

@@ -2,8 +2,10 @@
 {% load static %}
 
 {% block content-standard%}
-<div id="content-right-dash" class="flexbox-col-right">
+<div id="content-right-dash" class="flexbox-col-right" style="position: relative;">
+
 <canvas class="flexbox-col-right" id="myPieChart" width="400" height="400"></canvas>
+<button id="resetButton">Reset</button>
 <script src="{% static 'js/app.js' %}"></script>
 
 <!-- <script src="http://d3js.org/d3.v5.js"></script> -->
