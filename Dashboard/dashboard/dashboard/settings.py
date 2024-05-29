@@ -11,10 +11,15 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import environ
+import os
 
+env = environ.Env(
+)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -105,11 +110,11 @@ DATABASES = {
     },
     'feeds': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mydatabase',
-        'USER': 'myuser',
-        'PASSWORD': 'mypassword',
-        'HOST': 'localhost',
-        'PORT': '5434',
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
         'TEST': {
             'NAME': 'test_feeds_db',
             'DEPENDENCIES': []

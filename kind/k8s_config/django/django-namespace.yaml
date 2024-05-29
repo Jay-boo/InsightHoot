@@ -4,32 +4,90 @@ metadata:
   name: django
 
 ---
-kind: PersistentVolume
 apiVersion: v1
+kind: PersistentVolume
 metadata:
   name: postgres-pv
-  labels:
-    type: local
 spec:
-  storageClassName: manual
   capacity:
-    storage: 100M # total capacity for this persistent volume
+    storage: 5Gi
   accessModes:
     - ReadWriteOnce
-  hostPath: # where pesistent volume is created on the kubernetes node (needs to be /data for minikube)
-    path: "/data"
+  hostPath:
+    path: "/mnt/data"
 
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim #claim a portion of persistent volume
+kind: PersistentVolumeClaim
 metadata:
-  labels:
-    app: postgres
-  name: postgres-pv-claim
+  name: postgres-pvc
 spec:
-  storageClassName: manual
   accessModes:
-    - ReadWriteOnce # mount as read-write by a single node
+    - ReadWriteOnce
   resources:
     requests:
-      storage: 100M
+      storage: 5Gi
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-secret-credentials
+  labels:
+    app: postgresdb
+data:
+  POSTGRES_DB: mydatabase
+  POSTGRES_USER: myuser
+  POSTGRES_PASSWORD: mysecretpassword
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresdb
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: postgresdb
+  template:
+    metadata:
+      labels:
+        app: postgresdb
+    spec:
+      containers:
+        - name: postgresdb
+          image: postgres
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: db-secret-credentials
+          volumeMounts:
+            - mountPath: /var/lib/postgres/data
+              name: db-data
+            - mountPath: /docker-entrypoint-initdb.d/init.sql
+              name: init-db-script
+              subPath: init.sql
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+        - name: init-db-script
+          configMap:
+            name: init-db-script
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresdb
+  labels:
+    app: postgresdb
+spec:
+  type: NodePort
+  ports:
+    - port: 5432
+  selector:
+    app: postgresdb
+
