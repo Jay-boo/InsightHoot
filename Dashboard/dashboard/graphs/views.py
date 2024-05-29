@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.db.models import Count 
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-
+from datetime import datetime, timedelta
 # @login_required
 def home(request):
     return render(request, 'graphs/home.html')
@@ -24,6 +24,21 @@ def messages_by_tag(request):
 
 # @login_required
 def messages_with_tags(request):
-    messages = Messages.objects.all()
+    period = request.GET.get('period', 'all')
+
+    if period == 'last_7_days':
+        start_date = datetime.now() - timedelta(days=7)
+        messages = Messages.objects.filter(date__gte=start_date)
+    elif period == 'last_month':
+        start_date = datetime.now() - timedelta(days=30)
+        messages = Messages.objects.filter(date__gte=start_date)
+    elif period == 'last_3_months':
+        start_date = datetime.now() - timedelta(days=90)
+        messages = Messages.objects.filter(date__gte=start_date)        
+    elif period == 'last_6_months':
+        start_date = datetime.now() - timedelta(days=180)
+        messages = Messages.objects.filter(date__gte=start_date)         
+    else:
+        messages = Messages.objects.all()
     serializer = MessageSerializer(messages, many=True)
     return JsonResponse(serializer.data, safe=False)  

@@ -152,6 +152,25 @@ function renderPieChart(data, theme = null) {
     return myPieChart;
 }
 
+function fetchDataBasedOnSelection(selection) {
+    let url = '/graphs/messages_with_tags/';
+    if (selection === 'Les 7 derniers jours') {
+        url += '?period=last_7_days';
+    } else if (selection === 'Le dernier mois') {
+        url += '?period=last_month';
+    } else if (selection === 'Les 3 derniers mois') {
+        url += '?period=last_3_months';
+    } else if (selection === 'Les 6 derniers mois') {
+        url += '?period=last_6_months';
+    }
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            renderPieChart(data);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+}
+
 document.getElementById('resetButton').addEventListener('click', () => {
     fetch('/graphs/messages_with_tags/')
         .then(response => response.json())
@@ -160,6 +179,10 @@ document.getElementById('resetButton').addEventListener('click', () => {
             document.getElementById('resetButton').style.display = 'none'; // Hide reset button
         })
         .catch(error => console.error('Error fetching data:', error));
+});
+
+document.getElementById('Dropdown').addEventListener('change', (event) => {
+    fetchDataBasedOnSelection(event.target.value);
 });
 
 // Fetch data from the endpoint and render the chart

@@ -2,6 +2,16 @@
 {% load static %}
 
 {% block content-standard%}
+    <div style="margin-right: 20px;">
+        <label for="Dropdown"></label>
+        <select id="Dropdown">
+            <option value="Tout" selected>Tout</option>
+            <option value="Les 7 derniers jours">Les 7 derniers jours</option>
+            <option value="Le dernier mois">Le dernier mois</option>
+            <option value="Les 3 derniers mois">Les 3 derniers mois</option>
+            <option value="Les 6 derniers mois">Les 6 derniers mois</option>
+        </select>
+    </div>
 <div id="content-right-dash" class="flexbox-col-right" style="position: relative;">
 
 <canvas class="flexbox-col-right" id="myPieChart" width="400" height="400"></canvas>
