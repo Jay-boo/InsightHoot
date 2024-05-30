@@ -1,59 +1,68 @@
 let myLineChart;
 
-// Predefined colors for themes
 const themeColors = {
-    'langages': '#ffbe0b',
-    'IA': '#fb5607',
-    'OS': '#ff006e',
-    // Add more themes and their corresponding colors here
-    'default': '#000000' // Default color if theme is not specified
+    'langages': '#ffbc42',
+    'IA': '#d81159',
+    'OS': '#8f2d56',
+    'DataEngineering': '#218380',
+    'Outils': '#73d2de',
+    'default': '#000000'
 };
 
-function aggregateDataByMonthAndTheme(data) {
-    const themeCountsByMonth = {};
+function aggregateDataByTimePeriod(data, period) {
+    const themeCountsByPeriod = {};
 
     data.forEach(item => {
         const date = new Date(item.date);
-        const month = date.getFullYear() + '-' + (date.getMonth() + 1).toString().padStart(2, '0');
+        let periodKey;
+        
+        if (period === 'by_weeks') {
+            const weekStart = new Date(date);
+            weekStart.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1)); // Set to Monday
+            periodKey = weekStart.toISOString().split('T')[0]; // YYYY-MM-DD format for Monday
+        } else if (period === 'by_months') {
+            periodKey = date.getFullYear() + '-' + (date.getMonth() + 1).toString().padStart(2, '0');
+        } else {
+            periodKey = date.toISOString().split('T')[0]; // Daily format YYYY-MM-DD
+        }
 
         item.tags.forEach(tagItem => {
             const theme = tagItem.tag.theme;
 
-            if (!themeCountsByMonth[month]) {
-                themeCountsByMonth[month] = {};
+            if (!themeCountsByPeriod[periodKey]) {
+                themeCountsByPeriod[periodKey] = {};
             }
-            if (!themeCountsByMonth[month][theme]) {
-                themeCountsByMonth[month][theme] = 0;
+            if (!themeCountsByPeriod[periodKey][theme]) {
+                themeCountsByPeriod[periodKey][theme] = 0;
             }
-            themeCountsByMonth[month][theme] += 1;
+            themeCountsByPeriod[periodKey][theme] += 1;
         });
     });
-
-    return themeCountsByMonth;
+    console.log(themeCountsByPeriod);
+    return themeCountsByPeriod;
 }
 
-function prepareLineChartData(themeCountsByMonth) {
-    const months = Object.keys(themeCountsByMonth).sort();
-    const themes = [...new Set(Object.values(themeCountsByMonth).flatMap(Object.keys))];
+function prepareLineChartData(themeCountsByPeriod, period) {
+    const periods = Object.keys(themeCountsByPeriod).sort();
+    const themes = [...new Set(Object.values(themeCountsByPeriod).flatMap(Object.keys))];
 
     const datasets = themes.map(theme => {
         return {
             label: theme,
-            data: months.map(month => themeCountsByMonth[month][theme] || 0),
+            data: periods.map(period => themeCountsByPeriod[period][theme] || 0),
             fill: false,
             borderColor: themeColors[theme] || themeColors['default']
         };
     });
 
-    return { months, datasets };
+    return { periods, datasets };
 }
 
-function renderLineChart(data) {
-    const aggregatedData = aggregateDataByMonthAndTheme(data);
-    const { months, datasets } = prepareLineChartData(aggregatedData);
+function renderLineChart(data, period) {
+    const aggregatedData = aggregateDataByTimePeriod(data, period);
+    const { periods, datasets } = prepareLineChartData(aggregatedData, period);
     const ctx = document.getElementById('myLineChart').getContext('2d');
-    console.log(months);
-    console.log(datasets);
+    
     if (myLineChart) {
         myLineChart.destroy();
     }
@@ -61,18 +70,39 @@ function renderLineChart(data) {
     myLineChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: months,
+            labels: periods,
             datasets: datasets
         },
         options: {
             responsive: true,
             title: {
                 display: true,
-                text: 'Number of Messages per Theme per Month'
+                text: 'Number of Messages per Theme per ' + (period === 'by_weeks' ? 'Week' : period === 'by_months' ? 'Month' : 'Day')
             },
+            tension : 0,
             scales: {
+                x: {
+                    type: 'category',
+                    labels: periods,
+                    time: {
+                        unit: period === 'by_weeks' ? 'week' : period === 'by_months' ? 'month' : 'day',
+                        displayFormats: {
+                            day: 'MMM D',
+                            week: 'MMM D',
+                            month: 'MMM YYYY'
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                },
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Count'
+                    }
                 }
             }
         }
@@ -83,32 +113,24 @@ function renderLineChart(data) {
 
 function fetchDataBasedOnSelection(selection) {
     let url = '/graphs/messages_with_tags/';
-    if (selection === 'Les 7 derniers jours') {
-        url += '?period=last_7_days';
-    } else if (selection === 'Le dernier mois') {
-        url += '?period=last_month';
-    } else if (selection === 'Les 3 derniers mois') {
-        url += '?period=last_3_months';
-    } else if (selection === 'Les 6 derniers mois') {
-        url += '?period=last_6_months';
-    }
+    // Add your existing period selection logic if needed
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            renderLineChart(data);
+            renderLineChart(data, selection);
         })
         .catch(error => console.error('Error fetching data:', error));
 }
 
-document.getElementById('Dropdown').addEventListener('change', (event) => {
+document.getElementById('DropdownLine').addEventListener('change', (event) => {
     fetchDataBasedOnSelection(event.target.value);
 });
 
-// Fetch data from the endpoint and render the chart initially
+// Fetch data from the endpoint and render the chart initially with default period
 fetch('/graphs/messages_with_tags/')
     .then(response => response.json())
     .then(data => {
-        renderLineChart(data);
+        renderLineChart(data, 'by_months');
     })
     .catch(error => console.error('Error fetching data:', error));
 
