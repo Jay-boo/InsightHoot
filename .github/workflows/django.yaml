@@ -119,7 +119,7 @@ jobs:
           context: ./Dashboard
           file: ./Dashboard/Dockerfile
           push: true
-          tags: latest
+          tags: testing
           labels: ${{ steps.meta.outputs.labels }}
       
       
