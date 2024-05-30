@@ -9,7 +9,7 @@ const themeColors = {
     'default': '#000000'
 };
 
-function aggregateDataByTimePeriod(data, period) {
+function aggregateDataByTimePeriod(data, period, theme_given = null) {
     const themeCountsByPeriod = {};
 
     data.forEach(item => {
@@ -27,8 +27,10 @@ function aggregateDataByTimePeriod(data, period) {
         }
 
         item.tags.forEach(tagItem => {
-            const theme = tagItem.tag.theme;
 
+            const theme = theme_given ? tagItem.tag.label : tagItem.tag.theme;
+
+            
             if (!themeCountsByPeriod[periodKey]) {
                 themeCountsByPeriod[periodKey] = {};
             }
@@ -50,19 +52,19 @@ function prepareLineChartData(themeCountsByPeriod, period) {
         return {
             label: theme,
             data: periods.map(period => themeCountsByPeriod[period][theme] || 0),
-            fill: false,
-            borderColor: themeColors[theme] || themeColors['default']
+            fill: false
+            
         };
     });
 
     return { periods, datasets };
 }
 
-function renderLineChart(data, period) {
-    const aggregatedData = aggregateDataByTimePeriod(data, period);
+function renderLineChart(data, period, theme_given=null) {
+    const aggregatedData = aggregateDataByTimePeriod(data, period, theme_given);
     const { periods, datasets } = prepareLineChartData(aggregatedData, period);
     const ctx = document.getElementById('myLineChart').getContext('2d');
-    
+
     if (myLineChart) {
         myLineChart.destroy();
     }
@@ -104,12 +106,33 @@ function renderLineChart(data, period) {
                         text: 'Count'
                     }
                 }
+            },
+            onClick: (evt) => {
+                const points = myLineChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                if (points.length && !theme_given) {
+                    const firstPoint = points[0];
+                    const theme = myLineChart.data.datasets[firstPoint.datasetIndex].label;
+                    fetchDetailedDataByTheme(theme, period);
+                } else {
+                  fetchDataBasedOnSelection(period);
+                }
             }
         }
     });
 
     return myLineChart;
 }
+
+function fetchDetailedDataByTheme(theme, period) {
+    let url = `/graphs/messages_with_tags/?theme=${encodeURIComponent(theme)}`;
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            renderLineChart(data, period, theme);
+        })
+        .catch(error => console.error('Error fetching detailed data:', error));
+}
+
 
 function fetchDataBasedOnSelection(selection) {
     let url = '/graphs/messages_with_tags/';

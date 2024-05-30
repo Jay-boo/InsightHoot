@@ -6,6 +6,7 @@ from django.db.models import Count
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
+from django.db.models import Q
 # @login_required
 def home(request):
     return render(request, 'graphs/home.html')
@@ -23,8 +24,10 @@ def messages_by_tag(request):
     return JsonResponse(list(data), safe=False)
 
 # @login_required
+
 def messages_with_tags(request):
     period = request.GET.get('period', 'all')
+    theme = request.GET.get('theme', None)
 
     if period == 'last_7_days':
         start_date = datetime.now() - timedelta(days=7)
@@ -40,5 +43,11 @@ def messages_with_tags(request):
         messages = Messages.objects.filter(date__gte=start_date)         
     else:
         messages = Messages.objects.all()
+
+    if theme:
+        messages = messages.filter(
+            Q(messagetags__tagid__theme=theme)
+        ).distinct()
+
     serializer = MessageSerializer(messages, many=True)
-    return JsonResponse(serializer.data, safe=False)  
+    return JsonResponse(serializer.data, safe=False)
