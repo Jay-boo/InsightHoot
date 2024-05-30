@@ -57,7 +57,7 @@ jobs:
 
     - name: Create tables and insert data
       env:
-        PGPASSWORD: mypassword
+        PGPASSWORD: mysecretpassword
       run: |
         psql -h localhost -U myuser -d mydatabase -c "
         CREATE TABLE IF NOT EXISTS topics (
