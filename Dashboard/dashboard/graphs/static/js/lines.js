@@ -114,7 +114,7 @@ function renderLineChart(data, period, theme_given=null) {
                     const theme = myLineChart.data.datasets[firstPoint.datasetIndex].label;
                     fetchDetailedDataByTheme(theme, period);
                 } else {
-                  fetchDataBasedOnSelection(period);
+                  fetchDataBasedOnSelectionLine(period);
                 }
             }
         }
@@ -134,7 +134,7 @@ function fetchDetailedDataByTheme(theme, period) {
 }
 
 
-function fetchDataBasedOnSelection(selection) {
+function fetchDataBasedOnSelectionLine(selection) {
     let url = '/graphs/messages_with_tags/';
     // Add your existing period selection logic if needed
     fetch(url)
@@ -146,7 +146,7 @@ function fetchDataBasedOnSelection(selection) {
 }
 
 document.getElementById('DropdownLine').addEventListener('change', (event) => {
-    fetchDataBasedOnSelection(event.target.value);
+    fetchDataBasedOnSelectionLine(event.target.value);
 });
 
 // Fetch data from the endpoint and render the chart initially with default period
