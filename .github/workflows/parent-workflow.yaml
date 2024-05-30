@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - stable
+      - 'feature-dashboard-**'
   pull_request:
     branches:
       - 'feature-dashboard'
