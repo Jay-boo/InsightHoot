@@ -11,6 +11,9 @@ on:
 jobs:
   deploy-django:
     uses: ./.github/workflows/django.yaml
+    secrets:
+      DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+      DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
     permissions:
       packages: write
       contents: read
