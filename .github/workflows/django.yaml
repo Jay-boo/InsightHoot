@@ -6,10 +6,8 @@ on:
   pull_request:
     branches: 
       - 'feature-dashboard'
-      - 'feature-dashboard-**'
   push:
     branches:
-      - 'feature-dashboard'
       - 'feature-dashboard-**'
     # paths:
     #   - './Dashboard'

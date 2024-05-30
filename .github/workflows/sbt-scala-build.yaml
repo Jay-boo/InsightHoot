@@ -11,6 +11,10 @@ on:
 jobs:
   deploy_django:
     uses: ./.github/workflows/django.yaml
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
 
   sbt-build-jar:
     name: Build and Test
