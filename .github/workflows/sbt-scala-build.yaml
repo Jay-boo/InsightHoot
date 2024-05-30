@@ -18,6 +18,7 @@ jobs:
 
   sbt-build-jar:
     name: Build and Test
+    needs : [deploy-django]
     strategy:
       matrix:
         os: [ubuntu-latest]
