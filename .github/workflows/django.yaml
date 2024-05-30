@@ -12,8 +12,8 @@ on:
       - master
       - stable
       - 'feature-dashboard-**'
-    paths:
-      - './Dashboard'
+    # paths:
+    #   - './Dashboard'
     
 
 jobs:
