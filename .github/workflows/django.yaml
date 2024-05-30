@@ -119,7 +119,7 @@ jobs:
           context: ./Dashboard
           file: ./Dashboard/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }},"v1.0"
+          tags: jamdatafab/insighthoot-dashboard:latest
           labels: ${{ steps.meta.outputs.labels }}
       
       
