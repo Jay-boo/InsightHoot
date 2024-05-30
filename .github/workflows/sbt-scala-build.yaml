@@ -8,8 +8,9 @@ on:
       - master
       - stable
 
-
 jobs:
+  deploy_django:
+    uses: ./.github/workflows/django.yaml
 
   sbt-build-jar:
     name: Build and Test

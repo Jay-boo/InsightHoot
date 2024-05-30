@@ -1,6 +1,8 @@
 name: Dashboard
 
 on:
+  workflow_call:
+
   pull_request:
     branches: 
       - 'feature-dashboard'
@@ -9,6 +11,7 @@ on:
     branches:
       - master
       - stable
+      - 'feature-dashboard-**'
     paths:
       - './Dashboard'
     
