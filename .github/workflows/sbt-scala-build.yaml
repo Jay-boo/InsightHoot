@@ -9,7 +9,7 @@ on:
       - stable
 
 jobs:
-  deploy_django:
+  deploy-django:
     uses: ./.github/workflows/django.yaml
     permissions:
       packages: write
@@ -18,7 +18,7 @@ jobs:
 
   sbt-build-jar:
     name: Build and Test
-    needs : [deploy_django]
+    needs : [deploy-django]
     strategy:
       matrix:
         os: [ubuntu-latest]
