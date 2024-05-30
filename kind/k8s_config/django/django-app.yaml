@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-deploy
+  labels:
+    app: django-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: django-deploy
+  template:
+    metadata:
+      labels:
+        name: django-deploy
+    spec:
+      containers:
+        - name: django-deploy
+          image: jamdatafab/insighthoot-dashboard:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: db-secret-credentials
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: db-secret-credentials
+                  key: POSTGRES_PASSWORD
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: db-secret-credentials
+                  key: POSTGRES_DB
+            - name: DB_HOST
+              value: "postgresdb"
+            - name: DB_PORT
+              value: "5432"
+
+
+---
+# START Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-service
+  labels:
+    app: django-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80 #port that the service exposes
+      targetPort: 8000 #port that the app is receiving requests from via the pod
+  selector:
+    name: django-deploy
+# END SERVICE

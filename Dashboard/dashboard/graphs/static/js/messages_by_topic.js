@@ -23,6 +23,7 @@ var svg = d3.select(".chart-container").append("svg")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 d3.json("/graphs/messages_by_topic/", function(error, data) {
+  console.log("data collected",data)
   if (error) throw error;
 
   data.forEach(function(d) {

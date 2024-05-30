@@ -3,11 +3,14 @@ name: Dashboard
 on:
   pull_request:
     branches: 
-      - feature-dashboard
+      - 'feature-dashboard'
+      - 'feature-dashboard-**'
   push:
     branches:
       - master
       - stable
+    paths:
+      - './Dashboard'
     
 
 jobs:
@@ -20,7 +23,7 @@ jobs:
         # Provide the password for postgres
         env:
           POSTGRES_USER: myuser
-          POSTGRES_PASSWORD: mypassword
+          POSTGRES_PASSWORD: mysecretpassword
           POSTGRES_DB: mydatabase
         # Set health checks to wait until postgres has started
         options: >-
@@ -54,7 +57,7 @@ jobs:
 
     - name: Create tables and insert data
       env:
-        PGPASSWORD: mypassword
+        PGPASSWORD: mysecretpassword
       run: |
         psql -h localhost -U myuser -d mydatabase -c "
         CREATE TABLE IF NOT EXISTS topics (
