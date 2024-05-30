@@ -110,7 +110,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: jamdatafab/insighthoot-dashboard:latest
+          images: jamdatafab/insighthoot-dashboard
 
       - name: Build and push Docker image
         id: push
@@ -119,7 +119,7 @@ jobs:
           context: ./Dashboard
           file: ./Dashboard/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: latest
           labels: ${{ steps.meta.outputs.labels }}
       
       
