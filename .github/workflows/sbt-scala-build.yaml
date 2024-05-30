@@ -11,9 +11,7 @@ on:
 jobs:
   deploy-django:
     uses: ./.github/workflows/django.yaml
-    secrets:
-      username: new
-      password: here
+    secrets: inherit
     permissions:
       packages: write
       contents: read
