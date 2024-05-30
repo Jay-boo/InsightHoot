@@ -10,6 +10,7 @@ on:
 
 
 jobs:
+
   sbt-build-jar:
     name: Build and Test
     strategy:
@@ -47,6 +48,8 @@ jobs:
         with:
           name: InsightHootJar
           path: ./jars/InsightHootKafka-3.5.1-8-2.12.jar
+
+
 
 
   create-cluster:
