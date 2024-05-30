@@ -67,7 +67,7 @@
         {% if user.is_authenticated  %}
         <li class="navbar-item flexbox-left">
       <form class="navbar-item flexbox-left" id="logout-form" action="{% url 'logout' %}" method="POST">
-        
+        {% csrf_token %}
         <!-- CSRF token field if required by your backend -->
         <!-- <input type="hidden" name="_token" value="your_csrf_token_here"> -->
         <a href="#" onclick="document.getElementById('logout-form').submit();" class="navbar-item-inner flexbox-left">
