@@ -140,7 +140,7 @@ jobs:
       - name: Check Django application status
         run: |
           while true; do
-            POD_STATUS=$(k get pods --selector=name=django-deploy -o jsonpath='{.items[*].status.phase}')
+            POD_STATUS=$(kubectl get pods --selector=name=django-deploy -o jsonpath='{.items[*].status.phase}')
             echo $POD_STATUS
 
             if [ "$POD_STATUS" == "Running" ]; then
