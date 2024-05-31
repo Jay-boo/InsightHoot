@@ -1,13 +1,5 @@
 let myLineChart;
 
-const themeColors = {
-    'langages': '#ffbc42',
-    'IA': '#d81159',
-    'OS': '#8f2d56',
-    'DataEngineering': '#218380',
-    'Outils': '#73d2de',
-    'default': '#000000'
-};
 
 function aggregateDataByTimePeriod(data, period, theme_given = null) {
     const themeCountsByPeriod = {};
@@ -108,7 +100,7 @@ function renderLineChart(data, period, theme_given=null) {
                 }
             },
             onClick: (evt) => {
-                const points = myLineChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                const points = myLineChart.getElementsAtEventForMode(evt, 'nearest', axis = 'xy', { intersect: true }, true);
                 if (points.length && !theme_given) {
                     const firstPoint = points[0];
                     const theme = myLineChart.data.datasets[firstPoint.datasetIndex].label;
