@@ -94,7 +94,12 @@ jobs:
         run: |
           kubectl apply -f  kind/k8s_config/kafka
 
-      - name: Setup Django + PSQL
+      - name: Nginx-ingress
+        run: |
+          kubectl apply -f  https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manifests/metallb.yaml
+
+
+      - name: Setup (Django + PSQL)
         run: |
           kubectl apply -f  kind/k8s_config/django
       - name: Helm install
@@ -104,7 +109,7 @@ jobs:
           sleep 70
 
 
-      - name: Spark Operator
+      - name: Starting the Spark Application
         run: |
           kubectl apply -f  kind/k8s_config/spark-pi.yaml
           sleep 30
@@ -160,4 +165,14 @@ jobs:
               sleep 10
             fi
           done
+
+      - name: Check Django + PSQL connection through ./graphs 
+        run: |
+          curl localhost/graphs/ > graphs.html
+           if grep -q "chart-container"  graphs.html; then
+            echo "./graphs is up"
+            exit 0
+          else
+            echo "./graphs not reachable"
+            exit 1
 

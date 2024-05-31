@@ -6,6 +6,7 @@ echo "K8s Cluster init ..."
 kind create cluster --name insight-hoot --config ./kind/k8s_config/kind-config.yaml
 echo "Deploying Default Namespace: Zookeeper, Kafka, Kafka Connect, Kafka UI ..."
 kubectl apply -f ./kind/k8s_config/kafka/
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manifests/metallb.yaml
 kubectl apply -f ./kind/k8s_config/django/
 
 echo "------------------------"
