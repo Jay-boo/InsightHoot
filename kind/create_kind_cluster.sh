@@ -19,8 +19,6 @@ kubectl apply -f ./kind/k8s_config/spark-pi.yaml
 
 
 kubectl apply -f  https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-sleep 60
 kubectl apply -f ./kind/k8s_config/django/
-
-
+sleep 60
 kubectl apply -f ./kind/k8s_config/ingress.yaml

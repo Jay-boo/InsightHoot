@@ -167,16 +167,10 @@ jobs:
               sleep 10
             fi
           done
-      - name: test curl
-        run: |
-          curl localhost/graphs/
-          
 
       - name: Check Django + PSQL connection through ./graphs 
         run: |
-          curl localhost/graphs/ > graphs.html
-          URL= "localhost/graphs/"
-          cat graphs.html
+          URL="localhost/graphs/"
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
           if [ "$HTTP_STATUS" -eq 500 ]; then
             echo "Error: Received HTTP status code 500."
