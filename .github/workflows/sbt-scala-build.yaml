@@ -167,6 +167,10 @@ jobs:
               sleep 10
             fi
           done
+      - name: test curl
+        run: |
+          curl localhost/graphs/
+          
 
       - name: Check Django + PSQL connection through ./graphs 
         run: |
