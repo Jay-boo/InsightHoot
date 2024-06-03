@@ -21,5 +21,9 @@ class MessageSerializer(serializers.ModelSerializer):
         fields = ['date', 'content', 'title', 'link', 'tags']
 
     def get_tags(self, obj):
-        message_tags = MessageTags.objects.filter(messageid=obj)
+        theme = self.context.get('theme')
+        if theme:
+            message_tags = MessageTags.objects.filter(messageid=obj, tagid__theme=theme)
+        else:
+            message_tags = MessageTags.objects.filter(messageid=obj)
         return MessageTagSerializer(message_tags, many=True).data
