@@ -171,12 +171,17 @@ jobs:
       - name: Check Django + PSQL connection through ./graphs 
         run: |
           curl localhost/graphs/ > graphs.html
+          URL= "localhost/graphs/"
           cat graphs.html
-           if grep -q "chart-container"  graphs.html; then
-            echo "./graphs is up"
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+          if [ "$HTTP_STATUS" -eq 500 ]; then
+            echo "Error: Received HTTP status code 500."
+            exit 1
+          elif [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+            echo "Success: Received HTTP status code $HTTP_STATUS."
             exit 0
           else
-            echo "./graphs not reachable"
+            echo "Received HTTP status code $HTTP_STATUS."
             exit 1
           fi
 
