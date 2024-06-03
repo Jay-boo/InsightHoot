@@ -7,10 +7,6 @@ from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
 from django.db.models import Q
 
-<<<<<<< HEAD
-# @login_required
-=======
->>>>>>> feature-dashboard
 def home(request):
     try:
         response = messages_with_tags(request)
