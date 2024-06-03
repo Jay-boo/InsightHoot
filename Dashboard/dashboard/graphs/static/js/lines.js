@@ -1,13 +1,12 @@
 let myLineChart;
 
-
 function aggregateDataByTimePeriod(data, period, theme_given = null) {
     const themeCountsByPeriod = {};
 
     data.forEach(item => {
         const date = new Date(item.date);
         let periodKey;
-        
+
         if (period === 'by_weeks') {
             const weekStart = new Date(date);
             weekStart.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1)); // Set to Monday
@@ -19,10 +18,8 @@ function aggregateDataByTimePeriod(data, period, theme_given = null) {
         }
 
         item.tags.forEach(tagItem => {
-
             const theme = theme_given ? tagItem.tag.label : tagItem.tag.theme;
 
-            
             if (!themeCountsByPeriod[periodKey]) {
                 themeCountsByPeriod[periodKey] = {};
             }
@@ -45,7 +42,6 @@ function prepareLineChartData(themeCountsByPeriod, period) {
             label: theme,
             data: periods.map(period => themeCountsByPeriod[period][theme] || 0),
             fill: false
-            
         };
     });
 
@@ -73,7 +69,7 @@ function renderLineChart(data, period, theme_given=null) {
                 display: true,
                 text: 'Number of Messages per Theme per ' + (period === 'by_weeks' ? 'Week' : period === 'by_months' ? 'Month' : 'Day')
             },
-            tension : 0,
+            tension: 0,
             scales: {
                 x: {
                     type: 'category',
@@ -106,7 +102,7 @@ function renderLineChart(data, period, theme_given=null) {
                     const theme = myLineChart.data.datasets[firstPoint.datasetIndex].label;
                     fetchDetailedDataByTheme(theme, period);
                 } else {
-                  fetchDataBasedOnSelectionLine(period);
+                    fetchDataBasedOnSelectionLine(period);
                 }
             }
         }
@@ -125,10 +121,8 @@ function fetchDetailedDataByTheme(theme, period) {
         .catch(error => console.error('Error fetching detailed data:', error));
 }
 
-
 function fetchDataBasedOnSelectionLine(selection) {
     let url = '/graphs/messages_with_tags/';
-    // Add your existing period selection logic if needed
     fetch(url)
         .then(response => response.json())
         .then(data => {
@@ -146,6 +140,32 @@ fetch('/graphs/messages_with_tags/')
     .then(response => response.json())
     .then(data => {
         renderLineChart(data, 'by_months');
+        setupDateRangeSlider(data);
     })
     .catch(error => console.error('Error fetching data:', error));
 
+function setupDateRangeSlider(data) {
+    const uniqueDates = [...new Set(data.map(item => new Date(item.date).toISOString().split('T')[0]))]
+        .map(date => new Date(date));
+    uniqueDates.sort((a, b) => a - b);
+
+    const dateRangeSlider = document.getElementById('dateRangeSlider');
+    dateRangeSlider.min = 0;
+    dateRangeSlider.max = uniqueDates.length - 1;
+    dateRangeSlider.value = 0;
+
+    document.getElementById('minDateLabel').textContent = uniqueDates[0].toISOString().split('T')[0];
+    document.getElementById('maxDateLabel').textContent = uniqueDates[uniqueDates.length - 1].toISOString().split('T')[0];
+
+    dateRangeSlider.addEventListener('input', (event) => {
+        const selectedIndex = parseInt(event.target.value);
+        const selectedDate = uniqueDates[selectedIndex];
+        document.getElementById('minDateLabel').textContent = selectedDate.toISOString().split('T')[0];
+        filterDataByDate(selectedDate, data);
+    });
+}
+
+function filterDataByDate(selectedDate, data) {
+    const filteredData = data.filter(item => new Date(item.date) >= selectedDate);
+    renderLineChart(filteredData, document.getElementById('DropdownLine').value);
+}
