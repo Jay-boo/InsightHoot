@@ -171,10 +171,12 @@ jobs:
       - name: Check Django + PSQL connection through ./graphs 
         run: |
           curl localhost/graphs/ > graphs.html
+          cat graphs.html
            if grep -q "chart-container"  graphs.html; then
             echo "./graphs is up"
             exit 0
           else
             echo "./graphs not reachable"
             exit 1
+          fi
 
