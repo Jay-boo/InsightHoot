@@ -81,7 +81,6 @@ jobs:
           wget https://s3.amazonaws.com/auxdata.johnsnowlabs.com/public/models/pos_anc_en_3.0.0_3.0_1614962126490.zip
           unzip pos_anc_en_3.0.0_3.0_1614962126490.zip -d ./jars/pos_anc_en
 
-
       - name : See uploaded artifacts 
         run: ls ./jars
 
@@ -94,14 +93,25 @@ jobs:
       - name: Setup Kafka
         run: |
           kubectl apply -f  kind/k8s_config/kafka
+
+      - name: Nginx-ingress
+        run: |
+          kubectl apply -f  https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+          
+
       - name: Helm install
         run: |
           helm repo add spark-operator https://kubeflow.github.io/spark-operator
           helm install my-release spark-operator/spark-operator --version 1.2.7 --namespace spark-operator --create-namespace --set webhook.enable=true --debug
           sleep 70
 
+      - name: Setup (Django + PSQL)
+        run: |
+          kubectl apply -f  kind/k8s_config/django/
+          kubectl apply -f kind/k8s_config/ingress.yaml
 
-      - name: Spark Operator
+
+      - name: Starting the Spark Application
         run: |
           kubectl apply -f  kind/k8s_config/spark-pi.yaml
           sleep 30
@@ -133,3 +143,43 @@ jobs:
               sleep 10
             fi
           done
+
+      - name: Check Django application status
+        run: |
+          while true; do
+            POD_STATUS=$(kubectl get pods --selector=name=django-deploy -o jsonpath='{.items[*].status.phase}')
+            echo $POD_STATUS
+
+            if [ "$POD_STATUS" == "Running" ]; then
+              echo "Django Application Deployed"
+              exit 0
+            elif [ "$POD_STATUS" == "Succeeded" ]; then
+              echo "Django Application Deployed"
+              exit 0
+            elif [ "$POD_STATUS" == "Failed" ]; then
+              echo "Django Application Failed during deployment"
+              exit 1
+            elif [ "$POD_STATUS" == "Unknown" ]; then
+              echo "Django Application Unknow Status"
+              exit 1
+            else
+              echo "Django Application still running, Waiting ..."
+              sleep 10
+            fi
+          done
+
+      - name: Check Django + PSQL connection through ./graphs 
+        run: |
+          URL="localhost/graphs/"
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+          if [ "$HTTP_STATUS" -eq 500 ]; then
+            echo "Error: Received HTTP status code 500."
+            exit 1
+          elif [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+            echo "Success: Received HTTP status code $HTTP_STATUS."
+            exit 0
+          else
+            echo "Received HTTP status code $HTTP_STATUS."
+            exit 1
+          fi
+
