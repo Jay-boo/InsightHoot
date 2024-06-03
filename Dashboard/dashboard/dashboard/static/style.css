@@ -109,9 +109,6 @@ button {
     align-items: flex-start;
 }
 button:focus {
-    box-shadow:
-            0 0 0 2px hsl(var(--black)),
-            0 0 0 3px hsl(var(--white));
     border: 1px solid transparent;
 }
 
@@ -234,6 +231,11 @@ select {
 /* =========
     Classes
    ========= */
+.chart-container {
+    width: 80%;
+    max-width: 600px;
+    margin: auto;
+}
 
 .view-width {
     width: 70%;
@@ -369,10 +371,40 @@ select {
     background-color: hsl(var(--primary));
 }
 
+.container {
+  height: 200px;
+  position: relative;
+  border: 3px solid green;
+}
+
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
 /* ===============
     5. @keyframes
    =============== */
+#myPieChart {
+    display: block;
+    margin: 0 auto;
+}
 
+#resetButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: transparent;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: none;
+    
+}
 /* ==============
     @media rules
    ============== */

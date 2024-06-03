@@ -235,8 +235,8 @@ select {
     Classes
    ========= */
 .chart-container {
-    width: 100%;
-    max-width: 960px;
+    width: 80%;
+    max-width: 600px;
     margin: auto;
 }
 

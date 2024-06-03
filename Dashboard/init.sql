@@ -120,4 +120,3 @@ INSERT INTO message_tags (messageId, tagId) VALUES (4, 2);
 INSERT INTO message_tags (messageId, tagId) VALUES (5, 3);  
 INSERT INTO message_tags (messageId, tagId) VALUES (6, 3);
 INSERT INTO message_tags (messageId, tagId) VALUES (7, 3);
-

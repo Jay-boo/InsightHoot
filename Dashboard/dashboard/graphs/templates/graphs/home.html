@@ -1,7 +1,36 @@
 {% extends "base.html" %}
 {% load static %}
-{% block content %}
-<div class="chart-container"></div>
-<script src="http://d3js.org/d3.v3.js"></script>
-<script src="{% static 'js/messages_by_topic.js' %}"></script>
-{% endblock %}
+
+{% block content-standard%}
+    <div style="margin-right: 20px;">
+        <label for="Dropdown"></label>
+        <select id="Dropdown">
+            <option value="Tout" selected>Tout</option>
+            <option value="Les 7 derniers jours">Les 7 derniers jours</option>
+            <option value="Le dernier mois">Le dernier mois</option>
+            <option value="Les 3 derniers mois">Les 3 derniers mois</option>
+            <option value="Les 6 derniers mois">Les 6 derniers mois</option>
+        </select>
+    </div>
+<div id="content-right-dash" class="flexbox-col-right" style="position: relative;">
+
+<canvas class="flexbox-col-right" id="myPieChart" width="400" height="200"></canvas>
+<button id="resetButton">Reset</button>
+<script src="{% static 'js/donut.js' %}"></script>
+</div>
+    <div style="margin-right: 20px;">
+        <label for="DropdownLine"></label>
+        <select id="DropdownLine">
+            <option value="by_months" selected>By Months</option>
+            <option value="by_weeks">By Weeks</option>
+            <option value="by_days">By Days</option>
+        </select>
+    </div>
+<div id="content-right-dash-line" class="flexbox-col-right" style="position: relative;">
+
+<canvas class="flexbox-col-right" id="myLineChart" width="600" height="300"></canvas>
+
+<script src="{% static 'js/lines.js' %}"></script>
+</div>
+
+{% endblock content-standard %}

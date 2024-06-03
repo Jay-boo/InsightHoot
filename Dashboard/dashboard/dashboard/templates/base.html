@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 {% load static %}
 <html lang="en">
 <head>
@@ -12,7 +13,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="{% static "ionicons/css/ionicons.css" %}">
     <link rel="stylesheet" type='text/css' href="{% static 'style.css' %}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>    
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script src="http://d3js.org/d3.v5.js"></script>
+    <style>
+        #resetButton {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -29,7 +37,7 @@
         </li>
        <li class="navbar-item flexbox-left">
        <form class="navbar-item flexbox-left" id="home-form" action="{% url 'home' %}" method="GET">
-        {% csrf_token %}
+        
         <!-- CSRF token field if required by your backend -->
         <!-- <input type="hidden" name="_token" value="your_csrf_token_here"> -->
         <a href="#" onclick="document.getElementById('home-form').submit();" class="navbar-item-inner flexbox-left">
@@ -43,7 +51,7 @@
         {% if user.is_anonymous  %}
         <li class="navbar-item flexbox-left">
       <form class="navbar-item flexbox-left" id="login-form" action="/accounts/microsoft/login/?process=login" method="GET">
-        {% csrf_token %}
+        
         <!-- CSRF token field if required by your backend -->
         <!-- <input type="hidden" name="_token" value="your_csrf_token_here"> -->
         <a href="#" onclick="document.getElementById('login-form').submit();" class="navbar-item-inner flexbox-left">
@@ -72,8 +80,7 @@
         </li>
         <li class="navbar-item flexbox-left">
       <form class="navbar-item flexbox-left" id="feedviewer-form" action="{% url 'feedviewer:topics' %}" method="GET">
-        {% csrf_token %}
-        <!-- CSRF token field if required by your backend -->
+                <!-- CSRF token field if required by your backend -->
         <!-- <input type="hidden" name="_token" value="your_csrf_token_here"> -->
         <a href="#" onclick="document.getElementById('feedviewer-form').submit();" class="navbar-item-inner flexbox-left">
           <div class="navbar-item-inner-icon-wrapper flexbox">
@@ -83,18 +90,36 @@
         </a>
       </form>
         </li>
-
-        {% endif %}
+        <li class="navbar-item flexbox-left">
+      <form class="navbar-item flexbox-left" id="graphs-form" action="{% url 'graphs:home' %}" method="GET">
+                <!-- CSRF token field if required by your backend -->
+        <!-- <input type="hidden" name="_token" value="your_csrf_token_here"> -->
+        <a href="#" onclick="document.getElementById('graphs-form').submit();" class="navbar-item-inner flexbox-left">
+          <div class="navbar-item-inner-icon-wrapper flexbox">
+             <i class="fas fa-chart-pie"></i><!-- Use appropriate icon for logout -->
+          </div>
+          <span class="link-text">Dashboard</span>
+        </a>
+      </form>
+        </li>        {% endif %}
       </ul>
 </nav>
     </header>
     <main id="main">
-      <div class="flexbox-col-left-ns">
-      {% block content %}
+      <div id="content-left-ns" class="flexbox-col-left-ns">
+      {% block content-left-ns %}
       {% endblock %}
       </div>
-      <div class="flexbox-col-start-left">
+      <div id="content-left" class="flexbox-col-left">
       {% block content-left %}
+      {% endblock %}
+      </div>
+      <div id="content-standard" class="flexbox">
+      {% block content-standard %}
+      {% endblock %}
+      </div>
+      <div id="content-right" class="flexbox-col-right">
+      {% block content-right %}
       {% endblock %}
       </div>
     </main>     
