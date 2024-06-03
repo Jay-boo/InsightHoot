@@ -32,7 +32,7 @@ function aggregateDataByTimePeriod(data, period, theme_given = null) {
             themeCountsByPeriod[periodKey][theme] += 1;
         });
     });
-    console.log(themeCountsByPeriod);
+
     return themeCountsByPeriod;
 }
 
