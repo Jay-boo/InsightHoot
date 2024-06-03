@@ -96,7 +96,7 @@ jobs:
 
       - name: Nginx-ingress
         run: |
-          kubectl apply -f  https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manifests/metallb.yaml
+          kubectl apply -f  https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 
 
       - name: Setup (Django + PSQL)
