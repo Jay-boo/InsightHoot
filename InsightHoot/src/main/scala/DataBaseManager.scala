@@ -87,7 +87,7 @@ object DataBaseManagerLocal  extends SparkMachine  with Logging{
     df_messages.foreach(row=>addRowMessage(row))
   }
   def addRowMessage(row:Row): Unit = {
-    println("-----",row)
+//    println("-----",row)
     row match {
       case Row(title:String,
       feed_title:String,
