@@ -5,6 +5,7 @@ import com.johnsnowlabs.nlp.annotators.Tokenizer
 import com.johnsnowlabs.nlp.annotators.pos.perceptron.PerceptronModel
 import com.johnsnowlabs.nlp.base.DocumentAssembler
 import models.{LocalDatabaseConfig, MainDatabaseConfig}
+import org.apache.commons.text.StringEscapeUtils
 import org.apache.logging.log4j.scala.Logging
 import org.apache.spark.ml.{Pipeline, PipelineModel};
 
@@ -61,6 +62,9 @@ object Main extends SparkMachine with Logging {
     pertinentDF.groupBy("title","feed_title", "date", "feed_url", "link","content").agg(collect_list("token").as("relevant_tokens"))
   }
 
+  val decodeHtml=(html:String) => {
+    StringEscapeUtils.unescapeHtml4(html)
+  }
 
 
 
@@ -86,6 +90,16 @@ object Main extends SparkMachine with Logging {
       .options(kafkaParams)
       .load()
     val titleDF=getPayload(df).select("title", "feed_title","date", "feed_url", "link","content")
+
+
+
+
+    //---- Decode Html entities in content
+    println("Decoding example",decodeHtml("today it&#8217;s my turn!"))
+    val decodeHtmlUdf=udf(decodeHtml)
+    val htmlDecodedDF=titleDF.withColumn("content",decodeHtmlUdf($"content"))
+
+
     val documentAssembler= new DocumentAssembler()
       .setInputCol("title")
       .setOutputCol("document")
@@ -101,10 +115,11 @@ object Main extends SparkMachine with Logging {
       }
     }
 
+
     val pipeline_POS= new Pipeline()
       .setStages(Array(documentAssembler,tokenizer,posTagger))
-    val model=pipeline_POS.fit(titleDF.select("title","feed_title", "date", "feed_url", "link","content"))
-    val relevantTokens: DataFrame = getRelevantTokens(model, titleDF.select("title","feed_title", "date", "feed_url", "link","content"))
+    val model=pipeline_POS.fit(htmlDecodedDF.select("title","feed_title", "date", "feed_url", "link","content"))
+    val relevantTokens: DataFrame = getRelevantTokens(model, htmlDecodedDF.select("title","feed_title", "date", "feed_url", "link","content"))
     relevantTokens.show(4)
     val taggedDF:DataFrame=Tagger.tagDF(relevantTokens,spark)
     val taggedCleanDF=taggedDF.withColumn("content",when(col("content").isNull,"").otherwise(col("content")))
