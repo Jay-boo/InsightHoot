@@ -7,7 +7,10 @@ from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
 from django.db.models import Q
 
+<<<<<<< HEAD
 # @login_required
+=======
+>>>>>>> feature-dashboard
 def home(request):
     try:
         response = messages_with_tags(request)
@@ -19,7 +22,6 @@ def home(request):
         return HttpResponseServerError(render(request, 'graphs/error.html', {'error': str(e)}))
 
 
-@login_required
 def messages_by_topic(request):
     try:
         data = Messages.objects.values('topic__name') \

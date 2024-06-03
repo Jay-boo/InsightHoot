@@ -8,10 +8,18 @@ on:
       - master
       - stable
 
-
 jobs:
+  deploy-django:
+    uses: ./.github/workflows/django.yaml
+    secrets: inherit
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+
   sbt-build-jar:
     name: Build and Test
+    needs : [deploy-django]
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -47,6 +55,8 @@ jobs:
         with:
           name: InsightHootJar
           path: ./jars/InsightHootKafka-3.5.1-8-2.12.jar
+
+
 
 
   create-cluster:

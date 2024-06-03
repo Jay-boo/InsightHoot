@@ -9,14 +9,17 @@ class LoginTest(TestCase):
     databases = {'default', 'feeds'}
 
     def setUp(self) -> None:
+        print('In setUp')
         self.client = Client()
         self.user = User.objects.create_user("dio")
 
     def test_not_logged_in(self):
+        print('In test not logged in')
         response = self.client.get("/feedviewer/")
         self.assertEqual(response.status_code, 302)
 
     def test_logged_in(self):
+        print('In test_logged_in')
         self.client.force_login(self.user)
         response = self.client.get("/feedviewer/")
         self.assertEqual(response.status_code, 200)
