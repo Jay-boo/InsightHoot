@@ -2,8 +2,8 @@ use std::i64;
 
 use reqwest::{Client, Response};
 
-use crate::url::buildUrl;
-use super::response:: SubredditResponse;
+use crate::{url::buildUrl, subreddit::response::{BasicStruct,SubredditData, FeedResponse}};
+
 
 pub enum FeedFilter{
     Hot,
@@ -52,7 +52,7 @@ impl Subreddit{
             Ok(value)=> value,
             Err(_e)=> return Err(std::io::Error::new(std::io::ErrorKind::NotFound,format!("Not found url : {}",url)))
         };
-        let subreddit_resp:SubredditResponse=match response.json::<SubredditResponse>().await{
+        let subreddit_resp:BasicStruct<String, SubredditData>=match response.json::<BasicStruct<String,SubredditData>>().await{
             Ok(value)=> value,
             Err(_e)=> return Err(std::io::Error::new(std::io::ErrorKind::NotFound,format!("Not found url : {}",url)))
 
@@ -60,11 +60,9 @@ impl Subreddit{
         println!("Subreddit about response : \n{:#?}",subreddit_resp);
         self.about=Some(subreddit_resp.data.description);
         Ok(())
-
     }
 
     async fn get_feed(&mut self,sortMethod:FeedFilter,limit:Option<i64>)->Result<(),std::io::Error>{
-        println!("In getFeed()");
         let limit_string:String=match limit{
             Some(limit)=>format!("limit={}",limit),
             None=>String::from("")
@@ -77,8 +75,11 @@ impl Subreddit{
             Ok(value)=> value,
             Err(_e)=> return Err(std::io::Error::new(std::io::ErrorKind::NotFound,format!("Not found url : {}",url)))
         };
-        Ok(())
+        let feed_data:FeedResponse=response.json::<FeedResponse>().await.unwrap();
+        println!("Feed data :\n{:#?}",feed_data);
         // NEED TO REMOVE PIN OR ADMIN POST
+
+        Ok(())
 
         
     }
