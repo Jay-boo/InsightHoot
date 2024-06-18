@@ -1,6 +1,8 @@
 mod config;
 mod redditClient;
 mod me;
+mod subreddit;
+
 mod url;
 
 use std::io ;
@@ -10,6 +12,7 @@ use redditClient::RedditClient;
 use dotenv::dotenv;
 use serde::de::value;
 use std::env;
+use roux::Reddit;
 
 
 
@@ -29,10 +32,10 @@ async fn main()-> Result<(),std::io::Error>  {
 
     let mut reddit_client:RedditClient=RedditClient::new(&*USER_AGENT_NAME, &*CLIENT_ID, &*CLIENT_SECRET);
     let me:me::me::Me=reddit_client.login(&USER_NAME, &PASSWORD).await.unwrap();
+    me.get_subreddit("r/funny",Some(1),subreddit::subreddit::FeedFilter::Hot).await;
 
     // let response:Response=me.get("r/funny/top").await.unwrap();
     // println!("{:#?}",response.text().await);
-    
 
     // let client = Reddit::new("myuseragent","NCwsEETG7QrG4KRKHXY5Bw","dLDSfZ1JFQHIxibSjgTrtQRiUWfC8w")
     //     .username("RiceDelicious4164")
@@ -44,13 +47,12 @@ async fn main()-> Result<(),std::io::Error>  {
     //         if let Some(access_token)=val.config.access_token{
     //             println!("Sucesss:{}",access_token)
     //
-    //         }else{println!("No access toeken found")}
+    //         }else{println!("No access token found")}
     //     },
     //     Err(e)=>println!("error")
     // }
-    // let me=client.unwrap();
-    //
 
     Ok(())
 
 }
+

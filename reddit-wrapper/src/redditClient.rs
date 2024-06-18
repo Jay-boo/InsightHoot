@@ -65,6 +65,7 @@ impl RedditClient {
             .header(USER_AGENT, &self.config.user_agent)
             .basic_auth(&self.config.client_id, Some(&self.config.client_secret))
             .form(&form);
+
         let response:reqwest::Response=match request.send().await{
             Ok(response)=>response,
             Err(_e)=>return Err(io::Error::new(io::ErrorKind::NotConnected, "Authentication request failed !"))
