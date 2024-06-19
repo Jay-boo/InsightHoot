@@ -2,18 +2,14 @@ mod config;
 mod redditClient;
 mod me;
 mod subreddit;
-
 mod url;
 
-use std::io ;
+
 use lazy_static::lazy_static;
 use reqwest::{header::{USER_AGENT, HeaderValue}, Client, Response};
 use redditClient::RedditClient;
 use dotenv::dotenv;
-use serde::de::value;
 use std::env;
-use roux::Reddit;
-
 
 
 lazy_static!(
@@ -32,10 +28,11 @@ async fn main()-> Result<(),std::io::Error>  {
 
     let mut reddit_client:RedditClient=RedditClient::new(&*USER_AGENT_NAME, &*CLIENT_ID, &*CLIENT_SECRET);
     let me:me::me::Me=reddit_client.login(&USER_NAME, &PASSWORD).await.unwrap();
-    me.get_subreddit("r/funny",Some(1),subreddit::subreddit::FeedFilter::Hot).await;
+    let rfunny:subreddit::subreddit::Subreddit=me.get_subreddit("r/funny",Some(1),subreddit::subreddit::FeedFilter::Hot).await;
+    println!("-------------Feed :\n{:#?}",rfunny.feed);
 
-    // let response:Response=me.get("r/funny/top").await.unwrap();
-    // println!("{:#?}",response.text().await);
+    // -------------------------------------
+    // Testing the connection
 
     // let client = Reddit::new("myuseragent","NCwsEETG7QrG4KRKHXY5Bw","dLDSfZ1JFQHIxibSjgTrtQRiUWfC8w")
     //     .username("RiceDelicious4164")
@@ -55,4 +52,49 @@ async fn main()-> Result<(),std::io::Error>  {
     Ok(())
 
 }
+
+#[cfg(test)]
+mod tests{
+
+    use core::panic;
+    use dotenv::dotenv;
+    use reqwest::{Client, Response, header::USER_AGENT};
+
+    lazy_static::lazy_static!{
+        static ref USER_AGENT_NAME:String=std::env::var("USER_AGENT_NAME").expect("USER_AGENT_NAME not set");
+        static ref CLIENT_ID:String=std::env::var("CLIENT_ID").expect("CLIENT_ID not set");
+        static ref CLIENT_SECRET:String=std::env::var("CLIENT_SECRET").expect("CLIENT_SECRET not set");
+        static ref USER_NAME:String=std::env::var("USER_NAME").expect("USER_NAME not set");
+        static ref PASSWORD:String=std::env::var("PASSWORD").expect("PASSWORD not set");
+    }
+
+    
+
+
+    #[tokio::test]
+    async fn test_auhentication(){
+        println!("Authentication test");
+        dotenv().ok();
+        let url:&str="https://www.reddit.com/api/v1/access_token";
+        let form = [
+                ("grant_type", "password"),
+                (
+                    "username",&USER_NAME
+                ),
+                (
+                    "password",&PASSWORD
+                ),
+            ];
+        let response:Response=match Client::new()
+            .post(url).header(USER_AGENT,&*USER_AGENT_NAME)
+            .basic_auth(&*CLIENT_ID,Some(&*CLIENT_SECRET)).form(&form).send().await{
+                Ok(response)=>response,
+                Err(_e)=> panic!("{}",format!("Authentication request failed to {}  \nwith{:#?}!",url,form))
+            };
+        
+        println!("response:{:#?}",response.status())
+        
+    }
+}
+
 

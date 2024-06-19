@@ -31,8 +31,9 @@ impl FeedFilter{
 }
 
 pub struct Subreddit{
-    name:String,
-    about:Option<String>,
+    pub name:String,
+    pub about:Option<String>,
+    pub feed:Option<FeedResponse>,
     client: Client
 }
 
@@ -41,6 +42,7 @@ impl Subreddit{
         Subreddit{
             name:name.to_string(),
             about:None,
+            feed:None,
             client:client.to_owned()
         }
     }
@@ -76,9 +78,8 @@ impl Subreddit{
             Err(_e)=> return Err(std::io::Error::new(std::io::ErrorKind::NotFound,format!("Not found url : {}",url)))
         };
         let feed_data:FeedResponse=response.json::<FeedResponse>().await.unwrap();
-        println!("Feed data :\n{:#?}",feed_data);
+        self.feed=Some(feed_data);
         // NEED TO REMOVE PIN OR ADMIN POST
-
         Ok(())
 
         

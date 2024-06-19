@@ -1,5 +1,5 @@
 use std::{io, str::FromStr};
-use reqwest::{header::{USER_AGENT, self, HOST, AUTHORIZATION, HeaderValue}, Client};
+use reqwest::{header::{USER_AGENT, self,  AUTHORIZATION, HeaderValue}, Client};
 use serde::Deserialize;
 use core::fmt;
 use crate::{config::Config, me::me::{self, Me}};
@@ -68,9 +68,10 @@ impl RedditClient {
 
         let response:reqwest::Response=match request.send().await{
             Ok(response)=>response,
-            Err(_e)=>return Err(io::Error::new(io::ErrorKind::NotConnected, "Authentication request failed !"))
+            Err(_e)=>return Err(io::Error::new(io::ErrorKind::NotConnected, format!("Authentication request failed to {}  \nwith{:#?}!",url,form)))
         };
         if response.status()==200{
+            println!("code query 200");
             let auth_data:AuthResponse=match response.json::<AuthResponse>().await{
                 Ok(data)=>data,
                 Err(_e)=> return Err(io::Error::new(io::ErrorKind::NotConnected, format!("Not found user :{}",username)))
@@ -104,4 +105,3 @@ impl RedditClient {
     }
     
 }
-
