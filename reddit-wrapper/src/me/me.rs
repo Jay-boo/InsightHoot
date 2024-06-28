@@ -4,7 +4,8 @@ use std::str::FromStr;
 use reqwest::header::{HeaderMap, AUTHORIZATION, USER_AGENT,HeaderValue};
 use reqwest::{Response, Client};
 use serde::Serialize;
-use crate::subreddit::subreddit::{Subreddit, FeedFilter};
+use crate::subreddit::subreddit::{Subreddit};
+use crate::subreddit::feedoptions::{FeedFilter,FeedSort};
 use crate::url::buildUrl;
 
 use crate::config::{Config };
@@ -76,8 +77,15 @@ impl Me{
         headers.insert(USER_AGENT, HeaderValue::from_str(&self.config.user_agent).unwrap());
         let subreddit_client:Client=Client::builder().default_headers(headers).build().unwrap();
         let mut subreddit:Subreddit=Subreddit::new(subreddit_name,&subreddit_client);
-        subreddit.get_info(feed_limit,sortMethod ).await;
+        subreddit.get_about().await;
         subreddit
+
+    }
+
+    pub async fn fetch_new_post(&self,subreddits:Vec<Subreddit>){
+        for subreddit in subreddits.iter(){
+
+        }
 
     }
 

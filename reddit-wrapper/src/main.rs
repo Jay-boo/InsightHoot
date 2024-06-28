@@ -5,11 +5,13 @@ mod subreddit;
 mod url;
 
 
+
 use lazy_static::lazy_static;
 use reqwest::{header::{USER_AGENT, HeaderValue}, Client, Response};
 use redditClient::RedditClient;
 use dotenv::dotenv;
 use std::env;
+use log::info;
 
 
 lazy_static!(
@@ -22,13 +24,15 @@ lazy_static!(
 
 #[tokio::main]
 async fn main()-> Result<(),std::io::Error>  {
+    env::set_var("RUST_LOG", "info");
     // env::set_var("RUST_BACKTRACE", "1");
+    env_logger::init();
     dotenv().ok();
-    println!("Authenticating to Reddit");
+    info!("Authenticating to Reddit");
 
     let mut reddit_client:RedditClient=RedditClient::new(&*USER_AGENT_NAME, &*CLIENT_ID, &*CLIENT_SECRET);
     let me:me::me::Me=reddit_client.login(&USER_NAME, &PASSWORD).await.unwrap();
-    let rfunny:subreddit::subreddit::Subreddit=me.get_subreddit("r/funny",Some(1),subreddit::subreddit::FeedFilter::Hot).await;
+    let rfunny:subreddit::subreddit::Subreddit=me.get_subreddit("r/funny",Some(1),subreddit::feedoptions::FeedFilter::Hot).await;
     println!("-------------Feed :\n{:#?}",rfunny.feed);
 
     // -------------------------------------
@@ -68,9 +72,6 @@ mod tests{
         static ref PASSWORD:String=std::env::var("PASSWORD").expect("PASSWORD not set");
     }
 
-    
-
-
     #[tokio::test]
     async fn test_auhentication(){
         println!("Authentication test");
@@ -93,7 +94,6 @@ mod tests{
             };
         
         println!("response:{:#?}",response.status())
-        
     }
 }
 
