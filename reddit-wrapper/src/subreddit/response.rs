@@ -14,7 +14,7 @@ pub struct SubredditData{
 
 #[derive(Deserialize,Debug,Clone)]
 pub struct FeedData<T>{
-    children:Vec<T>
+    pub children:Vec<T>
 }
 
 #[derive(Deserialize,Debug,Clone)]

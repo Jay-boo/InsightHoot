@@ -1,10 +1,10 @@
 use std::{i64, time::Duration, fmt::{Debug, Display, Pointer}  };
-use futures::{Stream, channel::mpsc, Sink, TryFutureExt};
+use futures::{Stream, channel::mpsc, Sink, TryFutureExt, SinkExt};
 use reqwest::{Client, Response};
-use tokio::{task::JoinHandle, time::error::Elapsed };
-use log;
+use tokio::{task::JoinHandle, time::{error::Elapsed, sleep}, io::sink };
+use log::{self, debug};
 
-use crate::{url::buildUrl, subreddit::response::{BasicStruct,SubredditData, FeedResponse},subreddit::stream_error::StreamError};
+use crate::{url::buildUrl, subreddit::response::{BasicStruct,SubredditData, FeedResponse},subreddit::{stream_error::StreamError, response::FeedData}};
 use crate::subreddit::feedoptions::{FeedSort,FeedFilter};
 
 
@@ -40,44 +40,41 @@ impl Subreddit{
             Err(_e)=> return Err(std::io::Error::new(std::io::ErrorKind::NotFound,format!("Not found url : {}",url)))
 
         };
-        println!("Subreddit about response : \n{:#?}",subreddit_resp);
+        debug!("Subreddit about response : \n{:#?}",subreddit_resp);
         self.about=Some(subreddit_resp.data.description);
         Ok(())
     }
 
-    async fn get_feed(&mut self,feedOption:FeedFilter,limit:Option<i64>,feedSort:Option<FeedSort>)->Result<(),std::io::Error>{
+    async fn get_feed(&self,feed_option:FeedFilter,limit:Option<i64>,feed_sort:Option<FeedSort>)->Result<FeedResponse,std::io::Error>{
         let limit_string:String=match limit{
             Some(limit)=>format!("limit={}",limit),
             None=>String::from("")
         };
-        let sort_option_string:String=match feedSort{
+        let sort_option_string:String=match feed_sort{
             Some(sort_option)=>format!("sort={}",sort_option.as_str()),
             None=> String::from("")
         };
 
-        let dest:&str=&format!("{}/{}/.json?{}&{}",self.name,feedOption.as_str(),limit_string,sort_option_string.as_str()).to_string();
+        let dest:&str=&format!("{}/{}/.json?{}&{}",self.name,feed_option.as_str(),limit_string,sort_option_string.as_str()).to_string();
         let url:&str=&buildUrl(dest).to_string();
-        println!("Feed url :{}",url);
+        debug!("Feed url :{}",url);
         let response:Response= match self.client.get(url).send( ).await{
             Ok(value)=> value,
             Err(_e)=> return Err(std::io::Error::new(std::io::ErrorKind::NotFound,format!("Not found url : {}",url)))
         };
         let feed_data:FeedResponse=response.json::<FeedResponse>().await.unwrap();
-        self.feed=Some(feed_data);
-        // NEED TO REMOVE PIN OR ADMIN POST
-        Ok(())
+        Ok(feed_data)
     }
     
     
     
-    async fn send_message<S:Sink<String>>(&mut self,sleep_time:Duration,retry_strategy:String,timeout:Option<Duration>,sender:S)->Result<(),mpsc::SendError>{
+    async fn send_message<S:Sink<Result<FeedResponse,StreamError<std::io::Error>>>+core::marker::Unpin>(&mut self,sleep_time:Duration,retry_strategy:String,timeout:Option<Duration>,mut sender:S)->Result<(),S::Error>{
         // return mpsc::SendError when there is an error sending msg to receiver
         
         loop{
-
             log::info!("Fetching latest submission from source");
-            if let Some(timeout_duration)= timeout{
-                let timeout_obj:Result<Result<(), std::io::Error>, tokio::time::error::Elapsed>=tokio::time::timeout(
+            let latest:Result<FeedResponse, StreamError<std::io::Error>> =if let Some(timeout_duration)= timeout{
+                let timeout_obj:Result<Result<FeedResponse,std::io::Error >, Elapsed>=tokio::time::timeout(
                     timeout_duration,
                     self.get_feed(FeedFilter::New,
                         None,
@@ -102,21 +99,16 @@ impl Subreddit{
                 ).await{
                         Ok(val)=>Ok(val),
                         Err(err)=>Err(StreamError::SourceError(err))
-
                 }
-
-                
             };
-            break;
-
+            sender.send(latest).await;
+            sleep(sleep_time).await
         }
-
-
-        Ok(())
-
-
     }
-    fn stream_items(&self,sleep_time:Duration,retry_strategy:String,timeout:Option<Duration>)->(impl Stream<Item=String>,JoinHandle<Result<(),mpsc::SendError>>){
+
+
+
+    pub fn stream_items(&self,sleep_time:Duration,retry_strategy:String,timeout:Option<Duration>)->(impl Stream<Item=Result<FeedResponse,StreamError<std::io::Error>>>,JoinHandle<Result<(),mpsc::SendError>>){
         let (sender,receiver)=mpsc::unbounded();
         let mut owned_subreddit=self.clone();
         let fetch_post_task:JoinHandle<Result<(),mpsc::SendError>>=tokio::task::spawn(async move{
@@ -160,6 +152,7 @@ mod tests{
         let mut reddit_client:RedditClient=RedditClient::new(&*USER_AGENT_NAME, &*CLIENT_ID, &*CLIENT_SECRET);
         let me:me::me::Me=reddit_client.login(&USER_NAME, &PASSWORD).await.unwrap();
         let rfunny:subreddit::subreddit::Subreddit=me.get_subreddit("r/funny",Some(1),subreddit::subreddit::FeedFilter::Hot).await;
+        println!("-------Stream items");
 
         let (stream,join_handle)=rfunny.stream_items(Duration::new(30, 0), "Nothing".to_string(), None);
     }

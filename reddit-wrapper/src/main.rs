@@ -6,11 +6,12 @@ mod url;
 
 
 
+use futures::StreamExt;
 use lazy_static::lazy_static;
 use reqwest::{header::{USER_AGENT, HeaderValue}, Client, Response};
 use redditClient::RedditClient;
 use dotenv::dotenv;
-use std::env;
+use std::{env, time::Duration};
 use log::info;
 
 
@@ -32,8 +33,18 @@ async fn main()-> Result<(),std::io::Error>  {
 
     let mut reddit_client:RedditClient=RedditClient::new(&*USER_AGENT_NAME, &*CLIENT_ID, &*CLIENT_SECRET);
     let me:me::me::Me=reddit_client.login(&USER_NAME, &PASSWORD).await.unwrap();
+    info!("{}",format!("Get subreddit: {} ","r/funny"));
     let rfunny:subreddit::subreddit::Subreddit=me.get_subreddit("r/funny",Some(1),subreddit::feedoptions::FeedFilter::Hot).await;
-    println!("-------------Feed :\n{:#?}",rfunny.feed);
+    let (mut stream_posts,join_handle)= rfunny.stream_items(Duration::new(10, 0),"Nothing".to_string(),None);
+
+    while let  Some(post)=stream_posts.next().await{
+        let post = post.unwrap();
+        log::info!("{}",format!(
+        "created_utc :{}",post.data.children.get(0).unwrap().data.url
+        ))
+
+    }
+
 
     // -------------------------------------
     // Testing the connection
