@@ -6,12 +6,14 @@ mod url;
 
 
 
+use std::fmt::Write;
 use futures::StreamExt;
+use kafka::producer::{self, Producer, AsBytes};
 use lazy_static::lazy_static;
 use reqwest::{header::{USER_AGENT, HeaderValue}, Client, Response};
 use redditClient::RedditClient;
 use dotenv::dotenv;
-use std::{env, time::Duration, collections::HashSet};
+use std::{env, time::Duration, collections::HashSet };
 use log::info;
 use crate::subreddit::response::PostData;
 
@@ -22,6 +24,7 @@ lazy_static!(
     static ref CLIENT_SECRET:String=env::var("CLIENT_SECRET").expect("CLIENT_SECRET not set");
     static ref USER_NAME:String=env::var("USER_NAME").expect("USER_NAME not set");
     static ref PASSWORD:String=env::var("PASSWORD").expect("PASSWORD not set");
+    static ref KAFKA_HOST:String=env::var("KAFKA_HOST").expect("KAFKA_HOST not set");
 );
 
 #[tokio::main]
@@ -38,6 +41,16 @@ async fn main()-> Result<(),std::io::Error> {
     let (mut stream_posts,join_handle)= rfunny.stream_items(Duration::new(10, 0),"Nothing".to_string(),None);
 
     let mut seen_posts:HashSet<String>= HashSet::new();
+    let mut producer=Producer::from_hosts(
+        vec!(KAFKA_HOST.to_string())
+        )
+        .with_ack_timeout(Duration::from_secs(1))
+        .with_required_acks(producer::RequiredAcks::One)
+        .create()
+        .unwrap();
+    let mut buf=String::with_capacity( 2);
+
+
     
 
     while let  Some(posts)=stream_posts.next().await{
@@ -56,35 +69,12 @@ async fn main()-> Result<(),std::io::Error> {
                 continue;
             }
             seen_posts.insert(post_data.permalink);
-            log::info!("New post fetch from {}",&rfunny.name)
+            log::info!("New post fetch from {}",&rfunny.name);
+            producer.send(&producer::Record::from_value("r-funny-reddit", post_data.selftext.as_bytes()) );
 
         };
-
-        // log::debug!("{:#?}",post);
-        // log::info!("{}",format!(
-        // "New post fetch :{}",post.data.children.get(0).unwrap().data.selftext
-        // ))
-
     }
 
-
-    // -------------------------------------
-    // Testing the connection
-
-    // let client = Reddit::new("myuseragent","NCwsEETG7QrG4KRKHXY5Bw","dLDSfZ1JFQHIxibSjgTrtQRiUWfC8w")
-    //     .username("RiceDelicious4164")
-    //     .password("7grM3Cp5mdAfGWbF")
-    //     .login()
-    //     .await;
-    // match client{
-    //     Ok(val)=>{
-    //         if let Some(access_token)=val.config.access_token{
-    //             println!("Sucesss:{}",access_token)
-    //
-    //         }else{println!("No access token found")}
-    //     },
-    //     Err(e)=>println!("error")
-    // }
 
     Ok(())
 
