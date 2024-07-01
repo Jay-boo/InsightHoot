@@ -22,6 +22,7 @@ pub struct PostData{
     pub pinned:bool,
     pub selftext:String,
     pub url:String,
+    pub permalink:String,
     pub created_utc:f64
 }
 

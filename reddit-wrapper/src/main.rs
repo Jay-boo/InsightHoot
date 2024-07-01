@@ -11,8 +11,9 @@ use lazy_static::lazy_static;
 use reqwest::{header::{USER_AGENT, HeaderValue}, Client, Response};
 use redditClient::RedditClient;
 use dotenv::dotenv;
-use std::{env, time::Duration};
+use std::{env, time::Duration, collections::HashSet};
 use log::info;
+use crate::subreddit::response::PostData;
 
 
 lazy_static!(
@@ -24,24 +25,45 @@ lazy_static!(
 );
 
 #[tokio::main]
-async fn main()-> Result<(),std::io::Error>  {
-    env::set_var("RUST_LOG", "info");
+async fn main()-> Result<(),std::io::Error> {
+    env::set_var("RUST_LOG", "debug");
     // env::set_var("RUST_BACKTRACE", "1");
     env_logger::init();
     dotenv().ok();
     info!("Authenticating to Reddit");
-
     let mut reddit_client:RedditClient=RedditClient::new(&*USER_AGENT_NAME, &*CLIENT_ID, &*CLIENT_SECRET);
     let me:me::me::Me=reddit_client.login(&USER_NAME, &PASSWORD).await.unwrap();
     info!("{}",format!("Get subreddit: {} ","r/funny"));
     let rfunny:subreddit::subreddit::Subreddit=me.get_subreddit("r/funny",Some(1),subreddit::feedoptions::FeedFilter::Hot).await;
     let (mut stream_posts,join_handle)= rfunny.stream_items(Duration::new(10, 0),"Nothing".to_string(),None);
 
-    while let  Some(post)=stream_posts.next().await{
-        let post = post.unwrap();
-        log::info!("{}",format!(
-        "created_utc :{}",post.data.children.get(0).unwrap().data.url
-        ))
+    let mut seen_posts:HashSet<String>= HashSet::new();
+    
+
+    while let  Some(posts)=stream_posts.next().await{
+        let posts= match posts {
+            Ok(p) => p,
+            Err(err) => {
+                log::error!("{}",err);
+                continue;
+            }
+                ,
+        };
+        for post in posts.data.children{
+            let post_data:PostData=post.data;
+            if seen_posts.contains(&post_data.permalink){
+                log::debug!("Duplicate post skipped : {}",&post_data.permalink);
+                continue;
+            }
+            seen_posts.insert(post_data.permalink);
+            log::info!("New post fetch from {}",&rfunny.name)
+
+        };
+
+        // log::debug!("{:#?}",post);
+        // log::info!("{}",format!(
+        // "New post fetch :{}",post.data.children.get(0).unwrap().data.selftext
+        // ))
 
     }
 
